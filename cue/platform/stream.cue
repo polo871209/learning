@@ -5,6 +5,7 @@ import "encoding/yaml"
 // Collect all infrastructure resources into a list
 _resources: [
 	_namespace,
+	_postgresSecret,
 	_postgres,
 	_postgresService,
 ]

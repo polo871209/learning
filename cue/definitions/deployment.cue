@@ -27,13 +27,13 @@ import apps "cue.dev/x/k8s.io/api/apps/v1"
 			metadata: labels: app: _appLabel
 
 			spec: {
-				// Security best practices at pod level
-				securityContext: {
-					// Run as non-root user with high UID (>10000)
-					runAsNonRoot: *true | bool
-					runAsUser:    *10000 | int
-					runAsGroup:   *10000 | int
-					fsGroup:      *10000 | int
+			// Security best practices at pod level
+			securityContext: {
+				// Run as non-root user (wolfi-base nonroot user)
+				runAsNonRoot: *true | bool
+				runAsUser:    *65532 | int
+				runAsGroup:   *65532 | int
+				fsGroup:      *65532 | int
 
 					// Restrict filesystem access
 					fsGroupChangePolicy: *"OnRootMismatch" | string
@@ -52,19 +52,19 @@ import apps "cue.dev/x/k8s.io/api/apps/v1"
 					{
 						name:  string | *_name
 						image: string
-						
+
 						// Always pull the latest image
 						imagePullPolicy: *"Always" | string
 
-						// Security best practices at container level
-						securityContext: {
-							// Prevent privilege escalation
-							allowPrivilegeEscalation: *false | bool
+					// Security best practices at container level
+					securityContext: {
+						// Prevent privilege escalation
+						allowPrivilegeEscalation: *false | bool
 
-							// Run as non-root with high UID (>10000)
-							runAsNonRoot: *true | bool
-							runAsUser:    *10000 | int
-							runAsGroup:   *10000 | int
+						// Run as non-root (wolfi-base nonroot user)
+						runAsNonRoot: *true | bool
+						runAsUser:    *65532 | int
+						runAsGroup:   *65532 | int
 
 							// Drop all capabilities and only add required ones
 							capabilities: drop: *["ALL"] | [...string]

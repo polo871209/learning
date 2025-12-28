@@ -6,4 +6,5 @@ _config: {
 	labels: {
 		tier: "platform"
 	}
+	secret: "postgres-credentials"
 }

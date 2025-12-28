@@ -4,8 +4,8 @@ FROM cgr.dev/chainguard/wolfi-base:latest AS builder
 
 RUN apk add --no-cache \
       ca-certificates \
-      py3.13-pip \
-      python-3.13 \
+      py3.14-pip \
+      python-3.14 \
       uv
 
 ENV PYTHONUNBUFFERED=1 \
@@ -27,19 +27,20 @@ RUN apk add --no-cache \
       python-3.14 \
       tzdata
 
-USER nonroot
-
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH="/app"
 
 WORKDIR /app
 
-COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder --chown=nonroot:nonroot /app/.venv /app/.venv
+
+USER nonroot
 
 ENV PATH="/app/.venv/bin:$PATH"
 
-COPY app/ ./app/
+COPY --chown=nonroot:nonroot app/ ./app/
 
 EXPOSE 8000/tcp
 
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

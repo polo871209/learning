@@ -2,13 +2,11 @@ package app
 
 // Shared configuration for the FastAPI application
 _config: {
-	name:      "fastapi-app"
-	namespace: "production"
+	name:      "fastapi"
+	namespace: "app"
 	labels: {
-		app:     "fastapi-app"
-		env:     "production"
-		version: "1.0.0"
+		app: _config.name
 	}
-	image: "your-registry/fastapi-app:latest"
+	image: "fastapi:local"
 	port:  8000
 }

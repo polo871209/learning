@@ -8,11 +8,10 @@ _configMap: core.#ConfigMap & {
 	kind:       "ConfigMap"
 
 	metadata: {
-		name:      "api-config"
+		name:      _config.name
 		namespace: _config.namespace
 		labels: {
-			app:        _config.labels.app
-			env:        _config.labels.env
+			app:          _config.labels.app
 			"managed-by": "cue"
 		}
 	}
@@ -24,9 +23,9 @@ _configMap: core.#ConfigMap & {
 		API_PREFIX: "/api/v1"
 
 		// Database pool settings
-		DB_POOL_SIZE:     "10"
-		DB_MAX_OVERFLOW:  "20"
-		DB_POOL_TIMEOUT:  "30"
+		DB_POOL_SIZE:    "10"
+		DB_MAX_OVERFLOW: "20"
+		DB_POOL_TIMEOUT: "30"
 
 		// PostgreSQL database name
 		POSTGRES_DB: "mydb"

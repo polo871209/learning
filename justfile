@@ -17,16 +17,10 @@ vet-app app:
 export app:
     @cue export ./{{app}}/. --out text --expression stream
 
-# Export all apps to YAML
-export-all:
-    @just export infra
-    @echo "---"
-    @just export api
+[working-directory: 'cue']
+apply app:
+    @cue export ./{{app}}/. --out text --expression stream | kubectl apply -f -
 
-# Format all CUE files
-fmt:
-    @cd cue && cue fmt ./...
-
-# Initialize CUE dependencies
-mod-tidy:
-    @cd cue && cue mod tidy
+[working-directory: 'cue']
+delete app:
+    @cue export ./{{app}}/. --out text --expression stream | kubectl delete -f -

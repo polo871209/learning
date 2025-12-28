@@ -13,12 +13,11 @@ _deployment: base.#Deployment & {
 	}
 
 	spec: {
-		replicas: 2
-
 		template: spec: {
 			containers: [{
-				name:  _config.name
-				image: _config.image
+				name:            _config.name
+				image:           _config.image
+				imagePullPolicy: "IfNotPresent"
 
 				// Container port
 				ports: [{
@@ -30,10 +29,10 @@ _deployment: base.#Deployment & {
 				// Import entire ConfigMap and Secret as environment variables
 				envFrom: [
 					{
-						configMapRef: name: "api-config"
+						configMapRef: name: _config.name
 					},
 					{
-						secretRef: name: "api-secrets"
+						secretRef: name: "postgres-credentials"
 					},
 				]
 

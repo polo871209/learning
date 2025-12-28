@@ -37,7 +37,7 @@ _postgres: apps.#StatefulSet & {
 
 				containers: [{
 					name:  "postgres"
-					image: "postgres:16-alpine"
+					image: "postgres:18-alpine"
 
 					ports: [{
 						name:          "postgres"
@@ -45,29 +45,13 @@ _postgres: apps.#StatefulSet & {
 						protocol:      "TCP"
 					}]
 
-					// Environment variables from ConfigMap and Secret
+					// Environment variables from Secret
+					envFrom: [
+						{
+							secretRef: name: _config.secret
+						},
+					]
 					env: [
-						{
-							name: "POSTGRES_DB"
-							valueFrom: configMapKeyRef: {
-								name: "api-config"
-								key:  "POSTGRES_DB"
-							}
-						},
-						{
-							name: "POSTGRES_USER"
-							valueFrom: secretKeyRef: {
-								name: "api-secrets"
-								key:  "POSTGRES_USER"
-							}
-						},
-						{
-							name: "POSTGRES_PASSWORD"
-							valueFrom: secretKeyRef: {
-								name: "api-secrets"
-								key:  "POSTGRES_PASSWORD"
-							}
-						},
 						{
 							name:  "PGDATA"
 							value: "/var/lib/postgresql/data/pgdata"
@@ -76,7 +60,7 @@ _postgres: apps.#StatefulSet & {
 
 					// Health checks
 					livenessProbe: {
-						exec: command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+						exec: command: ["pg_isready", "-U", "postgres", "-h", "localhost"]
 						initialDelaySeconds: 30
 						periodSeconds:       10
 						timeoutSeconds:      5
@@ -84,7 +68,7 @@ _postgres: apps.#StatefulSet & {
 					}
 
 					readinessProbe: {
-						exec: command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+						exec: command: ["pg_isready", "-U", "postgres", "-h", "localhost"]
 						initialDelaySeconds: 5
 						periodSeconds:       5
 						timeoutSeconds:      3

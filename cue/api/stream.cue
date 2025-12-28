@@ -6,6 +6,7 @@ import "encoding/yaml"
 // Order matters: ConfigMap and Secret should be created before Deployment
 // Note: PostgreSQL resources have been moved to apps/infra
 _resources: [
+	_namespace,
 	_configMap,
 	_secret,
 	_deployment,
