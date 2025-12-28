@@ -1,6 +1,9 @@
 package app
 
-import base "github.com/polo871209/learning/definitions"
+import (
+	base "github.com/polo871209/learning/definitions"
+	platform "github.com/polo871209/learning/platform"
+)
 
 // FastAPI deployment with health checks, environment variables, and proper volume mounts
 _deployment: base.#Deployment & {
@@ -14,6 +17,26 @@ _deployment: base.#Deployment & {
 
 	spec: {
 		template: spec: {
+			// Init container for database migrations
+			initContainers: [{
+				name:            "\(_config.name)-migrations"
+				image:           _config.migrationImage
+				imagePullPolicy: "IfNotPresent"
+
+			// Import database credentials
+			envFrom: [{
+				secretRef: name: platform.PostgresSecretName
+			}]
+
+				// Resource limits for migration container
+				resources: {
+					limits: {
+						memory: "256Mi"
+						cpu:    "200m"
+					}
+				}
+			}]
+
 			containers: [{
 				name:            _config.name
 				image:           _config.image
@@ -26,15 +49,15 @@ _deployment: base.#Deployment & {
 					protocol:      "TCP"
 				}]
 
-				// Import entire ConfigMap and Secret as environment variables
-				envFrom: [
-					{
-						configMapRef: name: _config.name
-					},
-					{
-						secretRef: name: "postgres-credentials"
-					},
-				]
+			// Import entire ConfigMap and Secret as environment variables
+			envFrom: [
+				{
+					configMapRef: name: _config.name
+				},
+				{
+					secretRef: name: platform.PostgresSecretName
+				},
+			]
 
 				// Additional environment variables
 				env: [
@@ -85,10 +108,6 @@ _deployment: base.#Deployment & {
 
 				// Override resource limits for FastAPI
 				resources: {
-					requests: {
-						memory: "256Mi"
-						cpu:    "250m"
-					}
 					limits: {
 						memory: "512Mi"
 						cpu:    "500m"

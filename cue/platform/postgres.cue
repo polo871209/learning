@@ -77,10 +77,6 @@ _postgres: apps.#StatefulSet & {
 
 					// Resources
 					resources: {
-						requests: {
-							memory: "256Mi"
-							cpu:    "250m"
-						}
 						limits: {
 							memory: "512Mi"
 							cpu:    "500m"

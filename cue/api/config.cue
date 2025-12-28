@@ -7,6 +7,7 @@ _config: {
 	labels: {
 		app: _config.name
 	}
-	image: "fastapi:local"
-	port:  8000
+	image:           "fastapi:local"
+	migrationImage:  "fastapi-migrations:local"
+	port:            8000
 }

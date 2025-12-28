@@ -11,6 +11,21 @@ dependencies = [
     "psycopg[binary,pool]>=3.3.2",
     "pydantic>=2.12.5",
     "pydantic-settings>=2.12.0",
+    "python-dotenv>=1.2.1",
+    "opentelemetry-api>=1.39.1",
+    "opentelemetry-sdk>=1.39.1",
+    "opentelemetry-instrumentation-fastapi>=0.60b1",
+    "opentelemetry-instrumentation-psycopg>=0.60b1",
+    "opentelemetry-exporter-prometheus>=0.60b1",
+    "prometheus-client>=0.23.1",
+]
+
+[dependency-groups]
+migration = [
     "alembic>=1.17.2",
+    "psycopg[binary]>=3.3.2",
+    "sqlalchemy>=2.0.45",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
     "python-dotenv>=1.2.1",
 ]

@@ -21,7 +21,7 @@ _service: core.#Service & {
 		ports: [{
 			name:       "http"
 			protocol:   "TCP"
-			port:       80
+			port:       8000
 			targetPort: _config.port
 		}]
 
