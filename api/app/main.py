@@ -1,11 +1,15 @@
 from contextlib import asynccontextmanager
 from typing import cast
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.psycopg import PsycopgInstrumentor
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from app.config import settings
 from app.database import db
 from app.routers import users, posts
+from app.telemetry import setup_telemetry
 
 
 @asynccontextmanager
@@ -14,7 +18,11 @@ async def lifespan(app: FastAPI):
     Lifespan context manager for startup and shutdown events.
     This handles database connection pool initialization and cleanup.
     """
-    # Startup: Initialize database pool
+    # Startup: Initialize telemetry
+    setup_telemetry(service_name=settings.app_name)
+    print("OpenTelemetry instrumentation initialized")
+
+    # Initialize database pool
     await db.connect()
     print(f"Starting {settings.app_name}")
 
@@ -46,6 +54,12 @@ app.add_middleware(
 app.include_router(users.router, prefix=settings.api_prefix)
 app.include_router(posts.router, prefix=settings.api_prefix)
 
+# Instrument FastAPI with OpenTelemetry
+FastAPIInstrumentor.instrument_app(app)
+
+# Instrument psycopg for database tracing
+PsycopgInstrumentor().instrument()
+
 
 @app.get("/")
 async def root():
@@ -64,6 +78,12 @@ async def health_check():
         "status": "healthy",
         "database": "connected" if db.pool else "disconnected",
     }
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint."""
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 if __name__ == "__main__":
