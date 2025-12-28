@@ -1,0 +1,211 @@
+package v1
+
+import (
+	"list"
+	"strings"
+	"struct"
+	"time"
+)
+
+#RequestAuthentication: {
+	_embeddedResource
+
+	// Request authentication configuration for workloads. See more
+	// details at:
+	// https://istio.io/docs/reference/config/security/request_authentication.html
+	spec?: {
+		// Define the list of JWTs that can be validated at the selected
+		// workloads' proxy.
+		jwtRules?: list.MaxItems(4096) & [...{
+			// The list of JWT
+			// [audiences](https://tools.ietf.org/html/rfc7519#section-4.1.3)
+			// that are allowed to access.
+			audiences?: [...strings.MinRunes(
+				1)]
+
+			// If set to true, the original token will be kept for the
+			// upstream request.
+			forwardOriginalToken?: bool
+
+			// List of cookie names from which JWT is expected.
+			fromCookies?: [...strings.MinRunes(
+				1)]
+
+			// List of header locations from which JWT is expected.
+			fromHeaders?: [...{
+				// The HTTP header name.
+				name!: strings.MinRunes(
+					1)
+
+				// The prefix that should be stripped before decoding the token.
+				prefix?: string
+			}]
+
+			// List of query parameters from which JWT is expected.
+			fromParams?: [...strings.MinRunes(
+				1)]
+
+			// Identifies the issuer that issued the JWT.
+			issuer?: strings.MinRunes(
+					1)
+
+			// JSON Web Key Set of public keys to validate signature of the
+			// JWT.
+			jwks?: string
+
+			// URL of the provider's public key set to validate signature of
+			// the JWT.
+			jwks_uri?: strings.MaxRunes(
+					2048) & strings.MinRunes(
+					1)
+
+			// URL of the provider's public key set to validate signature of
+			// the JWT.
+			jwksUri?: strings.MaxRunes(
+					2048) & strings.MinRunes(
+					1)
+
+			// This field specifies a list of operations to copy the claim to
+			// HTTP headers on a successfully verified token.
+			outputClaimToHeaders?: [...{
+				// The name of the claim to be copied from.
+				claim!: strings.MinRunes(
+					1)
+
+				// The name of the header to be created.
+				header!: strings.MinRunes(
+						1) & =~"^[-_A-Za-z0-9]+$"
+			}]
+
+			// This field specifies the header name to output a successfully
+			// verified JWT payload to the backend.
+			outputPayloadToHeader?: string
+
+			// List of JWT claim names that should be treated as
+			// space-delimited strings.
+			spaceDelimitedClaims?: list.MaxItems(64) & [...strings.MinRunes(
+				1)]
+
+			// The maximum amount of time that the resolver, determined by the
+			// PILOT_JWT_ENABLE_REMOTE_JWKS environment variable, will spend
+			// waiting for the JWKS to be fetched.
+			timeout?: string
+		}]
+
+		// Optional.
+		selector?: {
+			// One or more labels that indicate a specific set of pods/VMs on
+			// which a policy should be applied.
+			matchLabels?: struct.MaxFields(
+				4096) & {
+					[string]: strings.MaxRunes(
+							63)
+				}
+		}
+		targetRef?: {
+			// group is the group of the target resource.
+			group?: strings.MaxRunes(
+				253) & =~"^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+
+			// kind is kind of the target resource.
+			kind!: strings.MaxRunes(
+				63) & strings.MinRunes(
+				1) & =~"^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+
+			// name is the name of the target resource.
+			name!: strings.MaxRunes(
+				253) & strings.MinRunes(
+				1)
+
+			// namespace is the namespace of the referent.
+			namespace?: string
+		}
+
+		// Optional.
+		targetRefs?: list.MaxItems(16) & [...{
+			// group is the group of the target resource.
+			group?: strings.MaxRunes(
+				253) & =~"^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+
+			// kind is kind of the target resource.
+			kind!: strings.MaxRunes(
+				63) & strings.MinRunes(
+				1) & =~"^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+
+			// name is the name of the target resource.
+			name!: strings.MaxRunes(
+				253) & strings.MinRunes(
+				1)
+
+			// namespace is the namespace of the referent.
+			namespace?: string
+		}]
+	}
+	status?: {
+		// Current service state of the resource.
+		conditions?: [...{
+			// Last time we probed the condition.
+			lastProbeTime?: time.Time
+
+			// Last time the condition transitioned from one status to
+			// another.
+			lastTransitionTime?: time.Time
+
+			// Human-readable message indicating details about last
+			// transition.
+			message?: string
+
+			// Resource Generation to which the Condition refers.
+			observedGeneration?: matchN(>=1, [int, string]) & (int | string)
+
+			// Unique, one-word, CamelCase reason for the condition's last
+			// transition.
+			reason?: string
+
+			// Status is the status of the condition.
+			status?: string
+
+			// Type is the type of the condition.
+			type?: string
+		}]
+		observedGeneration?: matchN(>=1, [int, string]) & (int | string)
+
+		// Includes any errors or warnings detected by Istio's analyzers.
+		validationMessages?: [...{
+			// A url pointing to the Istio documentation for this specific
+			// error type.
+			documentationUrl?: string
+
+			// Represents how severe a message is.
+			//
+			// Valid Options: UNKNOWN, ERROR, WARNING, INFO
+			level?: "UNKNOWN" | "ERROR" | "WARNING" | "INFO"
+			type?: {
+				// A 7 character code matching `^IST[0-9]{4}$` intended to
+				// uniquely identify the message type.
+				code?: string
+
+				// A human-readable name for the message type.
+				name?: string
+			}
+		}]
+		...
+	}
+
+	_embeddedResource: {
+		apiVersion!: string
+		kind!:       string
+		metadata?: {
+			...
+		}
+	}
+	apiVersion: "security.istio.io/v1"
+	kind:       "RequestAuthentication"
+	metadata!: {
+		name!:      string
+		namespace!: string
+		labels?: [string]: string
+		annotations?: [string]: string
+		...
+	}
+}
