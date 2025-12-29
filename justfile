@@ -38,3 +38,9 @@ apply app: build
 [working-directory: 'cue']
 delete app:
     @cue export ./{{app}}/. --out text --expression stream | kubectl delete -f -
+
+# Install Istio (base and istiod)
+helm-install-istio:
+    @helm install istio-base istio/base --namespace istio-system --create-namespace --version 1.28.2
+    @helm install istiod istio/istiod --namespace istio-system --wait --version 1.28.2
+    @echo "✓ Istio installation complete"

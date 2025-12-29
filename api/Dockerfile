@@ -92,5 +92,3 @@ ENV PATH="/app/.venv/bin:$PATH"
 COPY --chown=nonroot:nonroot app/ ./app/
 
 EXPOSE 8000/tcp
-
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -11,6 +11,7 @@ _resources: [
 	_secret,
 	_deployment,
 	_service,
+	_sidecar,
 ]
 
 // Export as YAML stream with --- separators
