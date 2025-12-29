@@ -1,6 +1,6 @@
 package app
 
-import istio "github.com/polo871209/learning/definitions/istio/v1"
+import istio "github.com/polo871209/learning/base/crds/istio/v1"
 
 // Istio Sidecar configuration for Unix Domain Socket communication
 _sidecar: istio.#Sidecar & {

@@ -4,13 +4,13 @@ default:
 
 # Build application Docker image
 build-app:
-    @cd api && docker build --target app -t fastapi:local .
-    @echo "✓ Application image built: fastapi:local"
+    @cd api && docker build --target app -t api:local .
+    @echo "✓ Application image built: api:local"
 
 # Build migration Docker image
 build-migrations:
-    @cd api && docker build --target migrations -t fastapi-migrations:local .
-    @echo "✓ Migration image built: fastapi-migrations:local"
+    @cd api && docker build --target migrations -t api-migrations:local .
+    @echo "✓ Migration image built: api-migrations:local"
 
 # Build both Docker images
 build: build-app build-migrations
@@ -18,24 +18,24 @@ build: build-app build-migrations
 
 # Validate all CUE configurations
 vet:
-    @cd cue && cue vet ./...
+    @cd k8s && cue vet ./...
     @echo "✓ All configurations valid"
 
 # Validate specific app
 vet-app app:
-    @cd cue && cue vet ./apps/{{app}}/...
+    @cd k8s && cue vet ./apps/{{app}}/...
     @echo "✓ {{app}} configuration valid"
 
 # Export specific app to YAML with --- separators
-[working-directory: 'cue']
+[working-directory: 'k8s']
 export app:
     @cue export ./{{app}}/. --out text --expression stream
 
-[working-directory: 'cue']
+[working-directory: 'k8s']
 apply app: build
     @cue export ./{{app}}/. --out text --expression stream | kubectl apply -f -
 
-[working-directory: 'cue']
+[working-directory: 'k8s']
 delete app:
     @cue export ./{{app}}/. --out text --expression stream | kubectl delete -f -
 
@@ -48,6 +48,6 @@ helm-install-prometheus:
     @helm install kube-prometheus-stack oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack --namespace observability --create-namespace --wait
     @echo "✓ kube-prometheus-stack installation complete"
 
-[working-directory: 'values']
+[working-directory: 'k8s/helm/kube-prometheus-stack']
 helm-upgrade:
-	@helm upgrade kube-prometheus-stack oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack -n observability --values promethues-stack.yaml
+	@helm upgrade kube-prometheus-stack oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack -n observability --values values.yaml

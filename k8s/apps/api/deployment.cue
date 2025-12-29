@@ -1,7 +1,7 @@
 package app
 
 import (
-	base "github.com/polo871209/learning/definitions"
+	base "github.com/polo871209/learning/base"
 	platform "github.com/polo871209/learning/platform"
 )
 

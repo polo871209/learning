@@ -1,7 +1,7 @@
 package platform
 
 import (
-	servicemonitor "github.com/polo871209/learning/definitions/promethues_operator/v1"
+	servicemonitor "github.com/polo871209/learning/base/crds/promethues_operator/v1"
 )
 
 // ServiceMonitor for Istio control plane (istiod) metrics

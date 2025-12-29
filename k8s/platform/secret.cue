@@ -1,6 +1,6 @@
 package platform
 
-import base "github.com/polo871209/learning/definitions"
+import base "github.com/polo871209/learning/base"
 
 // Secret for PostgreSQL credentials
 _postgresSecret: base.#PostgresSecret & {

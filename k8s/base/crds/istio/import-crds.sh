@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Istio CRD Import Script
 # This script imports all Istio CRDs from the official repository

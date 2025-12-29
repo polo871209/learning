@@ -1,4 +1,4 @@
-package definitions
+package base
 
 import apps "cue.dev/x/k8s.io/api/apps/v1"
 
