@@ -14,3 +14,17 @@ _namespace: core.#Namespace & {
 		}
 	}
 }
+
+// Kubernetes Namespace for observability resources
+_observabilityNamespace: core.#Namespace & {
+	apiVersion: "v1"
+	kind:       "Namespace"
+
+	metadata: {
+		name: "observability"
+		labels: {
+			"istio-injection": "enabled"
+			"name":            "observability"
+		}
+	}
+}

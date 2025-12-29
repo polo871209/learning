@@ -1,0 +1,34 @@
+crds:
+  enabled: true
+  upgradeJob:
+    enabled: true
+prometheus-windows-exporter:
+  prometheus:
+    monitor:
+      enabled: false
+      jobLabel: jobLabel
+alertmanager:
+  enabled: false
+grafana:
+  enabled: true
+  defaultDashboardsTimezone: Asia/Kuala_Lumpur
+  defaultDashboardsEditable: false
+  adminUser: admin
+  adminPassword: prom-operator
+  sidecar:
+    dashboards:
+      multicluster:
+        global:
+          enabled: true
+prometheusOperator:
+  enabled: true
+prometheus:
+  enabled: true
+  thanosService:
+    enabled: false
+  thanosServiceMonitor:
+    enabled: false
+    interval: ""
+  prometheusSpec:
+    replicas: 1
+    shards: 1

@@ -12,6 +12,7 @@ _resources: [
 	_deployment,
 	_service,
 	_sidecar,
+	_serviceMonitor,
 ]
 
 // Export as YAML stream with --- separators

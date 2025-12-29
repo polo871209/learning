@@ -39,8 +39,15 @@ apply app: build
 delete app:
     @cue export ./{{app}}/. --out text --expression stream | kubectl delete -f -
 
-# Install Istio (base and istiod)
 helm-install-istio:
     @helm install istio-base istio/base --namespace istio-system --create-namespace --version 1.28.2
     @helm install istiod istio/istiod --namespace istio-system --wait --version 1.28.2
     @echo "✓ Istio installation complete"
+
+helm-install-prometheus:
+    @helm install kube-prometheus-stack oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack --namespace observability --create-namespace --wait
+    @echo "✓ kube-prometheus-stack installation complete"
+
+[working-directory: 'values']
+helm-upgrade:
+	@helm upgrade kube-prometheus-stack oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack -n observability --values promethues-stack.yaml
