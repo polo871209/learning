@@ -8,15 +8,13 @@ _postgresService: core.#Service & {
 	kind:       "Service"
 
 	metadata: {
-		name:      "postgres"
+		name:      _config.postgres.name
 		namespace: _config.namespace
-		labels: _config.labels & {
-			app: "postgres"
-		}
+		labels:    _config.labels & _config.postgres.labels
 	}
 
 	spec: {
-		selector: app: "postgres"
+		selector: _config.postgres.labels
 
 		ports: [{
 			name:       "postgres"

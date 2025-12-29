@@ -8,21 +8,19 @@ _postgres: apps.#StatefulSet & {
 	kind:       "StatefulSet"
 
 	metadata: {
-		name:      "postgres"
+		name:      _config.postgres.name
 		namespace: _config.namespace
-		labels: _config.labels & {
-			app: "postgres"
-		}
+		labels:    _config.labels & _config.postgres.labels
 	}
 
 	spec: {
-		serviceName: "postgres"
+		serviceName: _config.postgres.name
 		replicas:    1
 
-		selector: matchLabels: app: "postgres"
+		selector: matchLabels: _config.postgres.labels
 
 		template: {
-			metadata: labels: app: "postgres"
+			metadata: labels: _config.postgres.labels
 
 			spec: {
 				// Security context at pod level

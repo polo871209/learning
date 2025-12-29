@@ -1,4 +1,4 @@
-package app
+package api
 
 import istio "github.com/polo871209/learning/base/crds/istio/v1"
 
@@ -7,9 +7,7 @@ _sidecar: istio.#Sidecar & {
 	metadata: {
 		name:      _config.name
 		namespace: _config.namespace
-		labels: _config.labels & {
-			"managed-by": "cue"
-		}
+		labels:    _config.labels
 	}
 
 	spec: {

@@ -1,8 +1,8 @@
-package app
+package api
 
 import core "cue.dev/x/k8s.io/api/core/v1"
 
-// Kubernetes Namespace for platform resources
+// Kubernetes Namespace for application resources
 _namespace: core.#Namespace & {
 	apiVersion: "v1"
 	kind:       "Namespace"

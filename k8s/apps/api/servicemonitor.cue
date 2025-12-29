@@ -1,6 +1,6 @@
-package app
+package api
 
-import servicemonitor "github.com/polo871209/learning/base/crds/promethues_operator/v1"
+import servicemonitor "github.com/polo871209/learning/base/crds/prometheus_operator/v1"
 
 // ServiceMonitor for Prometheus scraping
 _serviceMonitor: servicemonitor.#ServiceMonitor & {

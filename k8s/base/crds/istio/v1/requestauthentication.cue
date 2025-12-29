@@ -204,7 +204,7 @@ import (
 	metadata!: {
 		name!:      string
 		namespace!: string
-		labels?: [string]: string
+		labels?: [string]:      string
 		annotations?: [string]: string
 		...
 	}

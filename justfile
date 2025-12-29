@@ -29,7 +29,7 @@ vet-app app:
 # Export specific app to YAML with --- separators
 [working-directory: 'k8s']
 export app:
-    @cue export ./{{app}}/. --out text --expression stream
+    @cue export ./{{app}}/. --out text --expression stream | bat -l yaml
 
 [working-directory: 'k8s']
 apply app: build

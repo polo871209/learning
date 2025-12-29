@@ -10,7 +10,7 @@ import core "cue.dev/x/k8s.io/api/core/v1"
 	password: "postgres"
 	host:     "postgres.platform.svc.cluster.local"
 	port:     "5432"
-	
+
 	// Computed connection string
 	connectionString: "postgresql://\(user):\(password)@\(host):\(port)/\(db)"
 }
@@ -24,7 +24,7 @@ import core "cue.dev/x/k8s.io/api/core/v1"
 
 	// Must be provided by consumer
 	metadata: {
-		name:      string | *"postgres-credentials"
+		name:      "postgres-credentials"
 		namespace: string
 		labels: {...}
 	}

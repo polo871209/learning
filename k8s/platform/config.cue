@@ -10,4 +10,10 @@ _config: {
 		tier: "platform"
 	}
 	secret: PostgresSecretName
+	postgres: {
+		name: "postgres"
+		labels: {
+			app: "postgres"
+		}
+	}
 }

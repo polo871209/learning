@@ -1,11 +1,11 @@
-package v1alpha1
+package v1
 
 import (
 	"strings"
 	"time"
 )
 
-#PrometheusAgent: {
+#ThanosRuler: {
 	_embeddedResource
 	apiVersion?: string
 	kind?:       string
@@ -16,11 +16,6 @@ import (
 				1)
 			value?: string
 		}]
-		additionalScrapeConfigs?: {
-			key!:      string
-			name?:     string
-			optional?: bool
-		}
 		affinity?: {
 			nodeAffinity?: {
 				preferredDuringSchedulingIgnoredDuringExecution?: [...{
@@ -150,82 +145,20 @@ import (
 				}]
 			}
 		}
-		apiserverConfig?: {
-			authorization?: {
-				credentials?: {
-					key!:      string
-					name?:     string
-					optional?: bool
-				}
-				credentialsFile?: string
-				type?:            string
-			}
-			basicAuth?: {
-				password?: {
-					key!:      string
-					name?:     string
-					optional?: bool
-				}
-				username?: {
-					key!:      string
-					name?:     string
-					optional?: bool
-				}
-			}
-			bearerToken?:     string
-			bearerTokenFile?: string
-			host!:            string
-			noProxy?:         string
-			proxyConnectHeader?: [string]: [...{
-				key!:      string
-				name?:     string
-				optional?: bool
-			}]
-			proxyFromEnvironment?: bool
-			proxyUrl?:             =~"^(http|https|socks5)://.+$"
-			tlsConfig?: {
-				ca?: {
-					configMap?: {
-						key!:      string
-						name?:     string
-						optional?: bool
-					}
-					secret?: {
-						key!:      string
-						name?:     string
-						optional?: bool
-					}
-				}
-				caFile?: string
-				cert?: {
-					configMap?: {
-						key!:      string
-						name?:     string
-						optional?: bool
-					}
-					secret?: {
-						key!:      string
-						name?:     string
-						optional?: bool
-					}
-				}
-				certFile?:           string
-				insecureSkipVerify?: bool
-				keyFile?:            string
-				keySecret?: {
-					key!:      string
-					name?:     string
-					optional?: bool
-				}
-				maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-				minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-				serverName?: string
-			}
+		alertDropLabels?: [...string]
+		alertQueryUrl?:          string
+		alertRelabelConfigFile?: string
+		alertRelabelConfigs?: {
+			key!:      string
+			name?:     string
+			optional?: bool
 		}
-		arbitraryFSAccessThroughSMs?: deny?: bool
-		automountServiceAccountToken?: bool
-		bodySizeLimit?:                =~"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$"
-		configMaps?: [...string]
+		alertmanagersConfig?: {
+			key!:      string
+			name?:     string
+			optional?: bool
+		}
+		alertmanagersUrl?: [...string]
 		containers?: [...{
 			args?: [...string]
 			command?: [...string]
@@ -474,7 +407,6 @@ import (
 			}]
 			workingDir?: string
 		}]
-		convertClassicHistogramsToNHCB?: bool
 		dnsConfig?: {
 			nameservers?: [...strings.MinRunes(
 				1)]
@@ -489,17 +421,9 @@ import (
 		dnsPolicy?: "ClusterFirstWithHostNet" | "ClusterFirst" | "Default" | "None"
 		enableFeatures?: [...strings.MinRunes(
 			1)]
-		enableOTLPReceiver?:            bool
-		enableRemoteWriteReceiver?:     bool
-		enableServiceLinks?:            bool
-		enforcedBodySizeLimit?:         =~"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$"
-		enforcedKeepDroppedTargets?:    int64 & int
-		enforcedLabelLimit?:            int64 & int
-		enforcedLabelNameLengthLimit?:  int64 & int
-		enforcedLabelValueLengthLimit?: int64 & int
-		enforcedNamespaceLabel?:        string
-		enforcedSampleLimit?:           int64 & int
-		enforcedTargetLimit?:           int64 & int
+		enableServiceLinks?:     bool
+		enforcedNamespaceLabel?: string
+		evaluationInterval?:     =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
 		excludedFromEnforcement?: [...{
 			group?:     "monitoring.coreos.com"
 			name?:      string
@@ -507,17 +431,52 @@ import (
 					1)
 			resource!:  "prometheusrules" | "servicemonitors" | "podmonitors" | "probes" | "scrapeconfigs"
 		}]
-		externalLabels?: [string]: string
-		externalUrl?: string
+		externalPrefix?: string
+		grpcServerTlsConfig?: {
+			ca?: {
+				configMap?: {
+					key!:      string
+					name?:     string
+					optional?: bool
+				}
+				secret?: {
+					key!:      string
+					name?:     string
+					optional?: bool
+				}
+			}
+			caFile?: string
+			cert?: {
+				configMap?: {
+					key!:      string
+					name?:     string
+					optional?: bool
+				}
+				secret?: {
+					key!:      string
+					name?:     string
+					optional?: bool
+				}
+			}
+			certFile?:           string
+			insecureSkipVerify?: bool
+			keyFile?:            string
+			keySecret?: {
+				key!:      string
+				name?:     string
+				optional?: bool
+			}
+			maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+			minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+			serverName?: string
+		}
 		hostAliases?: [...{
 			hostnames!: [...string]
 			ip!: string
 		}]
-		hostNetwork?:              bool
-		hostUsers?:                bool
-		ignoreNamespaceSelectors?: bool
-		image?:                    string
-		imagePullPolicy?:          "" | "Always" | "Never" | "IfNotPresent"
+		hostUsers?:       bool
+		image?:           string
+		imagePullPolicy?: "" | "Always" | "Never" | "IfNotPresent"
 		imagePullSecrets?: [...{
 			name?: string
 		}]
@@ -769,79 +728,36 @@ import (
 			}]
 			workingDir?: string
 		}]
-		keepDroppedTargets?:            int64 & int
-		labelLimit?:                    int64 & int
-		labelNameLengthLimit?:          int64 & int
-		labelValueLengthLimit?:         int64 & int
-		listenLocal?:                   bool
-		logFormat?:                     "" | "logfmt" | "json"
-		logLevel?:                      "" | "debug" | "info" | "warn" | "error"
-		maximumStartupDurationSeconds?: int32 & int & >=60
-		minReadySeconds?:               int32 & int & >=0
-		mode?:                          "StatefulSet" | "DaemonSet"
-		nameEscapingScheme?:            "AllowUTF8" | "Underscores" | "Dots" | "Values"
-		nameValidationScheme?:          "UTF8" | "Legacy"
+		labels?: [string]: string
+		listenLocal?:     bool
+		logFormat?:       "" | "logfmt" | "json"
+		logLevel?:        "" | "debug" | "info" | "warn" | "error"
+		minReadySeconds?: int32 & int & >=0
 		nodeSelector?: [string]: string
-		otlp?: {
-			convertHistogramsToNHCB?: bool
-			ignoreResourceAttributes?: [...strings.MinRunes(
-				1)] & [_, ...]
-			keepIdentifyingResourceAttributes?: bool
-			promoteAllResourceAttributes?:      bool
-			promoteResourceAttributes?: [...strings.MinRunes(
-				1)] & [_, ...]
-			promoteScopeMetadata?: bool
-			translationStrategy?:  "NoUTF8EscapingWithSuffixes" | "UnderscoreEscapingWithSuffixes" | "NoTranslation" | "UnderscoreEscapingWithoutSuffixes"
+		objectStorageConfig?: {
+			key!:      string
+			name?:     string
+			optional?: bool
 		}
-		overrideHonorLabels?:     bool
-		overrideHonorTimestamps?: bool
+		objectStorageConfigFile?: string
 		paused?:                  bool
-		persistentVolumeClaimRetentionPolicy?: {
-			whenDeleted?: string
-			whenScaled?:  string
-		}
 		podMetadata?: {
 			annotations?: [string]: string
 			labels?: [string]:      string
 			name?: string
 		}
-		podMonitorNamespaceSelector?: {
-			matchExpressions?: [...{
-				key!:      string
-				operator!: string
-				values?: [...string]
-			}]
-			matchLabels?: [string]: string
-		}
-		podMonitorSelector?: {
-			matchExpressions?: [...{
-				key!:      string
-				operator!: string
-				values?: [...string]
-			}]
-			matchLabels?: [string]: string
-		}
-		podTargetLabels?: [...string]
 		portName?:          string
 		priorityClassName?: string
-		probeNamespaceSelector?: {
-			matchExpressions?: [...{
-				key!:      string
-				operator!: string
-				values?: [...string]
-			}]
-			matchLabels?: [string]: string
+		prometheusRulesExcludedFromEnforce?: [...{
+			ruleName!:      string
+			ruleNamespace!: string
+		}]
+		queryConfig?: {
+			key!:      string
+			name?:     string
+			optional?: bool
 		}
-		probeSelector?: {
-			matchExpressions?: [...{
-				key!:      string
-				operator!: string
-				values?: [...string]
-			}]
-			matchLabels?: [string]: string
-		}
-		prometheusExternalLabelName?: string
-		reloadStrategy?:              "HTTP" | "ProcessSignal"
+		queryEndpoints?: [...string]
 		remoteWrite?: [...{
 			authorization?: {
 				credentials?: {
@@ -1049,9 +965,8 @@ import (
 				targetLabel?: string
 			}]
 		}]
-		remoteWriteReceiverMessageVersions?: [..."V1.0" | "V2.0"] & [_, ...]
-		replicaExternalLabelName?: string
-		replicas?:                 int32 & int
+		replicas?:    int32 & int
+		resendDelay?: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
 		resources?: {
 			claims?: [...{
 				name!:    string
@@ -1060,83 +975,11 @@ import (
 			limits?: [string]: matchN(>=1, [int, string]) & (int | =~"^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$")
 			requests?: [string]: matchN(>=1, [int, string]) & (int | =~"^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$")
 		}
-		routePrefix?: string
-		runtime?: goGC?: int32 & int & >=-1
-		sampleLimit?: int64 & int
-		scrapeClasses?: [...{
-			attachMetadata?: node?: bool
-			authorization?: {
-				credentials?: {
-					key!:      string
-					name?:     string
-					optional?: bool
-				}
-				credentialsFile?: string
-				type?:            string
-			}
-			default?:                bool
-			fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
-			metricRelabelings?: [...{
-				action?:      "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual"
-				modulus?:     int64 & int
-				regex?:       string
-				replacement?: string
-				separator?:   string
-				sourceLabels?: [...string]
-				targetLabel?: string
-			}]
-			name!: strings.MinRunes(
-				1)
-			relabelings?: [...{
-				action?:      "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual"
-				modulus?:     int64 & int
-				regex?:       string
-				replacement?: string
-				separator?:   string
-				sourceLabels?: [...string]
-				targetLabel?: string
-			}]
-			tlsConfig?: {
-				ca?: {
-					configMap?: {
-						key!:      string
-						name?:     string
-						optional?: bool
-					}
-					secret?: {
-						key!:      string
-						name?:     string
-						optional?: bool
-					}
-				}
-				caFile?: string
-				cert?: {
-					configMap?: {
-						key!:      string
-						name?:     string
-						optional?: bool
-					}
-					secret?: {
-						key!:      string
-						name?:     string
-						optional?: bool
-					}
-				}
-				certFile?:           string
-				insecureSkipVerify?: bool
-				keyFile?:            string
-				keySecret?: {
-					key!:      string
-					name?:     string
-					optional?: bool
-				}
-				maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-				minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-				serverName?: string
-			}
-		}]
-		scrapeClassicHistograms?: bool
-		scrapeConfigNamespaceSelector?: {
+		retention?:          =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
+		routePrefix?:        string
+		ruleConcurrentEval?: int32 & int & >=1
+		ruleGracePeriod?:    =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
+		ruleNamespaceSelector?: {
 			matchExpressions?: [...{
 				key!:      string
 				operator!: string
@@ -1144,7 +987,9 @@ import (
 			}]
 			matchLabels?: [string]: string
 		}
-		scrapeConfigSelector?: {
+		ruleOutageTolerance?: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
+		ruleQueryOffset?:     =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
+		ruleSelector?: {
 			matchExpressions?: [...{
 				key!:      string
 				operator!: string
@@ -1152,12 +997,6 @@ import (
 			}]
 			matchLabels?: [string]: string
 		}
-		scrapeFailureLogFile?: strings.MinRunes(
-					1)
-		scrapeInterval?:       =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
-		scrapeProtocols?: [..."PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"]
-		scrapeTimeout?: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
-		secrets?: [...string]
 		securityContext?: {
 			appArmorProfile?: {
 				localhostProfile?: string
@@ -1192,27 +1031,9 @@ import (
 				runAsUserName?:          string
 			}
 		}
-		serviceAccountName?:   string
-		serviceDiscoveryRole?: "Endpoints" | "EndpointSlice"
-		serviceMonitorNamespaceSelector?: {
-			matchExpressions?: [...{
-				key!:      string
-				operator!: string
-				values?: [...string]
-			}]
-			matchLabels?: [string]: string
-		}
-		serviceMonitorSelector?: {
-			matchExpressions?: [...{
-				key!:      string
-				operator!: string
-				values?: [...string]
-			}]
-			matchLabels?: [string]: string
-		}
-		serviceName?: strings.MinRunes(
-				1)
-		shards?:      int32 & int
+		serviceAccountName?: string
+		serviceName?:        strings.MinRunes(
+					1)
 		storage?: {
 			disableMountSubPath?: bool
 			emptyDir?: {
@@ -1312,7 +1133,6 @@ import (
 				}
 			}
 		}
-		targetLimit?:                   int64 & int
 		terminationGracePeriodSeconds?: int64 & int & >=0
 		tolerations?: [...{
 			effect?:            string
@@ -1322,7 +1142,6 @@ import (
 			value?:             string
 		}]
 		topologySpreadConstraints?: [...{
-			additionalLabelSelectors?: "OnResource" | "OnShard"
 			labelSelector?: {
 				matchExpressions?: [...{
 					key!:      string
@@ -1340,55 +1159,12 @@ import (
 			whenUnsatisfiable!:  string
 		}]
 		tracingConfig?: {
-			clientType?:  "http" | "grpc"
-			compression?: "gzip"
-			endpoint!:    strings.MinRunes(
-					1)
-			headers?: [string]: string
-			insecure?: bool
-			samplingFraction?: matchN(>=1, [int, string]) & (int | =~"^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$")
-			timeout?: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
-			tlsConfig?: {
-				ca?: {
-					configMap?: {
-						key!:      string
-						name?:     string
-						optional?: bool
-					}
-					secret?: {
-						key!:      string
-						name?:     string
-						optional?: bool
-					}
-				}
-				caFile?: string
-				cert?: {
-					configMap?: {
-						key!:      string
-						name?:     string
-						optional?: bool
-					}
-					secret?: {
-						key!:      string
-						name?:     string
-						optional?: bool
-					}
-				}
-				certFile?:           string
-				insecureSkipVerify?: bool
-				keyFile?:            string
-				keySecret?: {
-					key!:      string
-					name?:     string
-					optional?: bool
-				}
-				maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-				minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-				serverName?: string
-			}
+			key!:      string
+			name?:     string
+			optional?: bool
 		}
-		tsdb?: outOfOrderTimeWindow?: =~"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
-		version?: string
+		tracingConfigFile?: string
+		version?:           string
 		volumeMounts?: [...{
 			mountPath!:         string
 			mountPropagation?:  string
@@ -1693,7 +1469,6 @@ import (
 				volumePath!:        string
 			}
 		}]
-		walCompression?: bool
 		web?: {
 			httpConfig?: {
 				headers?: {
@@ -1705,8 +1480,6 @@ import (
 				}
 				http2?: bool
 			}
-			maxConnections?: int32 & int & >=0
-			pageTitle?:      string
 			tlsConfig?: {
 				cert?: {
 					configMap?: {
@@ -1761,17 +1534,8 @@ import (
 			type!:               strings.MinRunes(
 						1)
 		}]
-		paused?:   bool
-		replicas?: int32 & int
-		selector?: string
-		shardStatuses?: [...{
-			availableReplicas!:   int32 & int
-			replicas!:            int32 & int
-			shardID!:             string
-			unavailableReplicas!: int32 & int
-			updatedReplicas!:     int32 & int
-		}]
-		shards?:              int32 & int
+		paused?:              bool
+		replicas?:            int32 & int
 		unavailableReplicas?: int32 & int
 		updatedReplicas?:     int32 & int
 	}
@@ -1783,12 +1547,12 @@ import (
 			...
 		}
 	}
-	apiVersion: "monitoring.coreos.com/v1alpha1"
-	kind:       "PrometheusAgent"
+	apiVersion: "monitoring.coreos.com/v1"
+	kind:       "ThanosRuler"
 	metadata!: {
 		name!:      string
 		namespace!: string
-		labels?: [string]: string
+		labels?: [string]:      string
 		annotations?: [string]: string
 		...
 	}

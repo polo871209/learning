@@ -1,4 +1,4 @@
-package app
+package api
 
 import core "cue.dev/x/k8s.io/api/core/v1"
 
@@ -10,9 +10,7 @@ _service: core.#Service & {
 	metadata: {
 		name:      _config.name
 		namespace: _config.namespace
-		labels: _config.labels & {
-			"managed-by": "cue"
-		}
+		labels:    _config.labels
 	}
 
 	spec: {
@@ -21,7 +19,7 @@ _service: core.#Service & {
 		ports: [{
 			name:       "http"
 			protocol:   "TCP"
-			port:       8000
+			port:       _config.port
 			targetPort: _config.port
 		}]
 

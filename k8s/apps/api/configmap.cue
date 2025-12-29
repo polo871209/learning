@@ -1,4 +1,4 @@
-package app
+package api
 
 import core "cue.dev/x/k8s.io/api/core/v1"
 
@@ -11,8 +11,7 @@ _configMap: core.#ConfigMap & {
 		name:      _config.name
 		namespace: _config.namespace
 		labels: {
-			app:          _config.labels.app
-			"managed-by": "cue"
+			app: _config.labels.app
 		}
 	}
 

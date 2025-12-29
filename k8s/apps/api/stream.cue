@@ -1,14 +1,13 @@
-package app
+package api
 
 import "encoding/yaml"
 
 // Collect all Kubernetes resources into a list
-// Order matters: ConfigMap and Secret should be created before Deployment
-// Note: PostgreSQL resources have been moved to apps/infra
+// ConfigMap should be created before Deployment for environment variables
 _resources: [
 	_namespace,
 	_configMap,
-	_secret,
+	_postgresSecret,
 	_deployment,
 	_service,
 	_sidecar,

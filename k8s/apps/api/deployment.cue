@@ -1,4 +1,4 @@
-package app
+package api
 
 import (
 	base "github.com/polo871209/learning/base"
