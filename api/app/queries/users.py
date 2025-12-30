@@ -29,13 +29,21 @@ GET_USER_BY_EMAIL = """
 """
 
 GET_ALL_USERS = """
-    SELECT id, name, email, is_active, created_at, updated_at
+    SELECT
+        id,
+        name,
+        email,
+        is_active,
+        created_at,
+        updated_at,
+        COUNT(*) OVER() as total_count
     FROM users
     WHERE is_active = %s
     ORDER BY created_at DESC
     LIMIT %s OFFSET %s
 """
 
+# Deprecated - use GET_ALL_USERS with window function instead
 GET_USERS_COUNT = """
     SELECT COUNT(*) as total
     FROM users

@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from sqlmodel import Field, SQLModel
 
 
@@ -30,9 +29,9 @@ class UserCreate(UserBase):
 class UserUpdate(SQLModel):
     """Model for updating a user (all fields optional)."""
 
-    name: Optional[str] = Field(default=None, max_length=100)
-    email: Optional[str] = Field(default=None, max_length=255)
-    is_active: Optional[bool] = None
+    name: str | None = Field(default=None, max_length=100)
+    email: str | None = Field(default=None, max_length=255)
+    is_active: bool | None = None
 
 
 class UserResponse(UserBase):
@@ -79,9 +78,9 @@ class PostCreate(PostBase):
 class PostUpdate(SQLModel):
     """Model for updating a post (all fields optional)."""
 
-    title: Optional[str] = Field(default=None, max_length=200)
-    content: Optional[str] = None
-    published: Optional[bool] = None
+    title: str | None = Field(default=None, max_length=200)
+    content: str | None = None
+    published: bool | None = None
 
 
 class PostResponse(PostBase):

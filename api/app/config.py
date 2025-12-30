@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import model_validator
 
 
 class Settings(BaseSettings):
@@ -6,8 +7,8 @@ class Settings(BaseSettings):
 
     # Database
     database_url: str = "postgresql://postgres:postgres@localhost:5432/mydb"
-    db_pool_size: int = 10
-    db_max_overflow: int = 20
+    db_pool_min_size: int = 2
+    db_pool_max_size: int = 20
     db_pool_timeout: int = 30
 
     # Application
@@ -21,6 +22,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
+        extra="ignore",  # Ignore extra fields for backward compatibility
     )
 
     @property

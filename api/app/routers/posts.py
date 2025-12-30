@@ -101,16 +101,6 @@ async def update_post(
     db: Database = Depends(get_db),
 ):
     """Update a post (partial update)."""
-    # Check if post exists
-    existing = await db.execute(
-        post_queries.GET_POST_BY_ID,
-        (post_id,),
-        fetch="one",
-    )
-
-    if not existing:
-        raise HTTPException(status_code=404, detail="Post not found")
-
     result = await db.execute(
         post_queries.UPDATE_POST,
         (post_data.title, post_data.content, post_data.published, post_id),
@@ -118,7 +108,7 @@ async def update_post(
     )
 
     if not result:
-        raise HTTPException(status_code=500, detail="Failed to update post")
+        raise HTTPException(status_code=404, detail="Post not found")
 
     return PostResponse(**cast(dict[str, Any], result))
 

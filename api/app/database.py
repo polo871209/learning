@@ -18,8 +18,8 @@ class Database:
         """Initialize the connection pool."""
         self.pool = AsyncConnectionPool(
             conninfo=settings.database_url,
-            min_size=settings.db_pool_size,
-            max_size=settings.db_pool_size + settings.db_max_overflow,
+            min_size=settings.db_pool_min_size,
+            max_size=settings.db_pool_max_size,
             timeout=settings.db_pool_timeout,
             open=False,
         )
