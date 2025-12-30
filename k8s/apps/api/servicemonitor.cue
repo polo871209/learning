@@ -27,6 +27,21 @@ _serviceMonitor: servicemonitor.#ServiceMonitor & {
 			path:     "/metrics"
 			interval: "30s"
 			scheme:   "http"
+			// Drop unnecessary metrics to reduce cardinality
+			metricRelabelings: [
+				// Drop health check endpoint metrics
+				{
+					sourceLabels: ["__name__", "path"]
+					action:       "drop"
+					regex:        "api_request_duration_seconds.*;/health"
+				},
+				// Drop favicon endpoint metrics
+				{
+					sourceLabels: ["__name__", "path"]
+					action:       "drop"
+					regex:        "api_request_duration_seconds.*;/favicon\\.ico"
+				},
+			]
 		}]
 	}
 }

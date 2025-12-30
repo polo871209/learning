@@ -1,0 +1,24 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "prometheus": {
+      "enabled": false,
+      "type": "local",
+      "command": [
+        "docker",
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "PROMETHEUS_URL",
+        "-e",
+        "PROMETHEUS_URL_SSL_VERIFY",
+        "ghcr.io/pab1it0/prometheus-mcp-server:latest"
+      ],
+      "environment": {
+        "PROMETHEUS_URL": "http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090",
+        "PROMETHEUS_URL_SSL_VERIFY": "false"
+      }
+    }
+  }
+}

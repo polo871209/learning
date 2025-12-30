@@ -1,14 +1,15 @@
 from contextlib import asynccontextmanager
 from typing import cast
+
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.psycopg import PsycopgInstrumentor
-from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from app.config import settings
 from app.database import db
-from app.routers import users, posts
+from app.routers import posts, users
 from app.telemetry import setup_telemetry
 
 
