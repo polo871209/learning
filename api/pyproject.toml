@@ -18,6 +18,7 @@ dependencies = [
     "opentelemetry-instrumentation-psycopg>=0.60b1",
     "opentelemetry-exporter-prometheus>=0.60b1",
     "prometheus-client>=0.23.1",
+    "aiohttp>=3.11.11",
 ]
 
 [dependency-groups]
