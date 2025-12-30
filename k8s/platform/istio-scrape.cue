@@ -1,8 +1,12 @@
 package platform
 
-import servicemonitor "github.com/polo871209/learning/base/crds/prometheus_operator/v1"
+import (
+	servicemonitor "github.com/polo871209/learning/base/crds/prometheus_operator/v1"
+	podmonitor "github.com/polo871209/learning/base/crds/prometheus_operator/v1"
+)
 
 // ServiceMonitor for Istio control plane (istiod) metrics
+// Matches prometheus job: istiod with endpoints role discovery
 _istiodServiceMonitor: servicemonitor.#ServiceMonitor & {
 	apiVersion: "monitoring.coreos.com/v1"
 	kind:       "ServiceMonitor"
@@ -16,9 +20,9 @@ _istiodServiceMonitor: servicemonitor.#ServiceMonitor & {
 	}
 
 	spec: {
+		// Match istiod service
 		selector: matchLabels: {
-			"app":   "istiod"
-			"istio": "pilot"
+			"app": "istiod"
 		}
 		namespaceSelector: matchNames: ["istio-system"]
 		endpoints: [{
@@ -29,10 +33,11 @@ _istiodServiceMonitor: servicemonitor.#ServiceMonitor & {
 	}
 }
 
-// ServiceMonitor for Istio Envoy sidecars (data plane) - using istio-proxy service
-_istioProxyServiceMonitor: servicemonitor.#ServiceMonitor & {
+// PodMonitor for Istio Envoy sidecars and gateway proxies (data plane)
+// Matches prometheus job: envoy-stats with pod role discovery
+_envoyStatsPodMonitor: podmonitor.#PodMonitor & {
 	apiVersion: "monitoring.coreos.com/v1"
-	kind:       "ServiceMonitor"
+	kind:       "PodMonitor"
 
 	metadata: {
 		name:      "envoy-stats"
@@ -43,31 +48,18 @@ _istioProxyServiceMonitor: servicemonitor.#ServiceMonitor & {
 	}
 
 	spec: {
-		selector: matchLabels: {
-			"service.istio.io/canonical-name": ""
-		}
+		// Match all pods across all namespaces
+		selector: matchLabels: {}
 		namespaceSelector: any: true
-		endpoints: [{
-			port:     "http-envoy-prom"
+		podMetricsEndpoints: [{
 			path:     "/stats/prometheus"
 			interval: "15s"
 			relabelings: [
+				// Keep only pods with container ports ending in -envoy-prom
 				{
-					sourceLabels: ["__meta_kubernetes_service_label_service_istio_io_canonical_name"]
-					action: "keep"
-					regex:  ".+"
-				},
-				{
-					sourceLabels: ["__meta_kubernetes_endpoint_address_target_name"]
-					targetLabel: "pod"
-				},
-				{
-					sourceLabels: ["__meta_kubernetes_namespace"]
-					targetLabel: "namespace"
-				},
-				{
-					sourceLabels: ["__meta_kubernetes_service_name"]
-					targetLabel: "service"
+					sourceLabels: ["__meta_kubernetes_pod_container_port_name"]
+					action:       "keep"
+					regex:        ".*-envoy-prom"
 				},
 			]
 		}]

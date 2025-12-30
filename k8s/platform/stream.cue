@@ -10,7 +10,7 @@ _resources: [
 	_postgres,
 	_postgresService,
 	_istiodServiceMonitor,
-	_istioProxyServiceMonitor,
+	_envoyStatsPodMonitor,
 ]
 
 // Export as YAML stream with --- separators
