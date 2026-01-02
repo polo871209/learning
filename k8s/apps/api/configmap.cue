@@ -4,9 +4,6 @@ import core "cue.dev/x/k8s.io/api/core/v1"
 
 // ConfigMap for non-sensitive environment variables
 _configMap: core.#ConfigMap & {
-	apiVersion: "v1"
-	kind:       "ConfigMap"
-
 	metadata: {
 		name:      _config.name
 		namespace: _config.namespace

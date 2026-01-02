@@ -8,9 +8,6 @@ import (
 // ServiceMonitor for Istio control plane (istiod) metrics
 // Matches prometheus job: istiod with endpoints role discovery
 _istiodServiceMonitor: servicemonitor.#ServiceMonitor & {
-	apiVersion: "monitoring.coreos.com/v1"
-	kind:       "ServiceMonitor"
-
 	metadata: {
 		name:      "istiod"
 		namespace: "istio-system"
@@ -55,9 +52,6 @@ _istiodServiceMonitor: servicemonitor.#ServiceMonitor & {
 // PodMonitor for Istio Envoy sidecars and gateway proxies (data plane)
 // Matches prometheus job: envoy-stats with pod role discovery
 _envoyStatsPodMonitor: podmonitor.#PodMonitor & {
-	apiVersion: "monitoring.coreos.com/v1"
-	kind:       "PodMonitor"
-
 	metadata: {
 		name:      "envoy-stats"
 		namespace: "istio-system"

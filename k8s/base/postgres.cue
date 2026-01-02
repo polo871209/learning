@@ -2,19 +2,6 @@ package base
 
 import core "cue.dev/x/k8s.io/api/core/v1"
 
-// PostgreSQL configuration values
-// This allows sharing credentials between platform and api namespaces
-#PostgresConfig: {
-	db:       "platformdb"
-	user:     "postgres"
-	password: "postgres"
-	host:     "postgres.platform.svc.cluster.local"
-	port:     "5432"
-
-	// Computed connection string
-	connectionString: "postgresql://\(user):\(password)@\(host):\(port)/\(db)"
-}
-
 // PostgreSQL secret template
 // Can be reused across namespaces by overriding metadata
 #PostgresSecret: core.#Secret & {
@@ -29,13 +16,10 @@ import core "cue.dev/x/k8s.io/api/core/v1"
 		labels: {...}
 	}
 
-	// Shared postgres configuration
-	let _pgConfig = #PostgresConfig
-
 	stringData: {
-		POSTGRES_DB:       _pgConfig.db
-		POSTGRES_USER:     _pgConfig.user
-		POSTGRES_PASSWORD: _pgConfig.password
-		DATABASE_URL:      _pgConfig.connectionString
+		POSTGRES_DB:       "platformdb"
+		POSTGRES_USER:     "postgres"
+		POSTGRES_PASSWORD: "postgres"
+		DATABASE_URL:      "postgresql://\(POSTGRES_USER):\(POSTGRES_PASSWORD)@postgres.platform.svc.cluster.local:5432/\(POSTGRES_DB)"
 	}
 }

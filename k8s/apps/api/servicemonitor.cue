@@ -4,9 +4,6 @@ import servicemonitor "github.com/polo871209/learning/base/crds/prometheus_opera
 
 // ServiceMonitor for Prometheus scraping
 _serviceMonitor: servicemonitor.#ServiceMonitor & {
-	apiVersion: "monitoring.coreos.com/v1"
-	kind:       "ServiceMonitor"
-
 	metadata: {
 		name:      _config.name
 		namespace: _config.namespace
@@ -32,14 +29,14 @@ _serviceMonitor: servicemonitor.#ServiceMonitor & {
 				// Drop health check endpoint metrics
 				{
 					sourceLabels: ["__name__", "path"]
-					action:       "drop"
-					regex:        "api_request_duration_seconds.*;/health"
+					action: "drop"
+					regex:  "api_request_duration_seconds.*;/health"
 				},
 				// Drop favicon endpoint metrics
 				{
 					sourceLabels: ["__name__", "path"]
-					action:       "drop"
-					regex:        "api_request_duration_seconds.*;/favicon\\.ico"
+					action: "drop"
+					regex:  "api_request_duration_seconds.*;/favicon\\.ico"
 				},
 			]
 		}]

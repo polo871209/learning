@@ -1,4 +1,4 @@
-package platform
+package postgres
 
 import base "github.com/polo871209/learning/base"
 

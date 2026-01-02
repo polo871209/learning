@@ -1,26 +1,23 @@
-package platform
+package postgres
 
 import apps "cue.dev/x/k8s.io/api/apps/v1"
 
 // PostgreSQL StatefulSet for persistent database
-_postgres: apps.#StatefulSet & {
-	apiVersion: "apps/v1"
-	kind:       "StatefulSet"
-
+_statefulSet: apps.#StatefulSet & {
 	metadata: {
-		name:      _config.postgres.name
+		name:      _config.name
 		namespace: _config.namespace
-		labels:    _config.labels & _config.postgres.labels
+		labels:    _config.labels
 	}
 
 	spec: {
-		serviceName: _config.postgres.name
+		serviceName: _config.name
 		replicas:    1
 
-		selector: matchLabels: _config.postgres.labels
+		selector: matchLabels: _config.labels
 
 		template: {
-			metadata: labels: _config.postgres.labels
+			metadata: labels: _config.labels
 
 			spec: {
 				// Security context at pod level
@@ -34,7 +31,7 @@ _postgres: apps.#StatefulSet & {
 				}
 
 				containers: [{
-					name:  "postgres"
+					name:  _config.name
 					image: "postgres:18-alpine"
 
 					ports: [{
@@ -46,7 +43,7 @@ _postgres: apps.#StatefulSet & {
 					// Environment variables from Secret
 					envFrom: [
 						{
-							secretRef: name: _config.secret
+							secretRef: name: _postgresSecret.metadata.name
 						},
 					]
 					env: [

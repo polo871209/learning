@@ -29,15 +29,15 @@ vet-app app:
 # Export specific app to YAML with --- separators
 [working-directory: 'k8s']
 export app:
-    @cue export ./{{app}}/. --out text --expression stream | bat -l yaml
+    @cue export ./{{app}}/... --out text --expression stream
 
 [working-directory: 'k8s']
-apply app: build
-    @cue export ./{{app}}/. --out text --expression stream | kubectl apply -f -
+apply app:
+    @cue export ./{{app}}/... --out text --expression stream | kubectl apply -f -
 
 [working-directory: 'k8s']
 delete app:
-    @cue export ./{{app}}/. --out text --expression stream | kubectl delete -f -
+    @cue export ./{{app}}/... --out text --expression stream | kubectl delete -f -
 
 helm-install-istio:
     @helm install istio-base istio/base --namespace istio-system --create-namespace --version 1.28.2

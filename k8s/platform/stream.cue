@@ -1,17 +1,16 @@
 package platform
 
-import "encoding/yaml"
+import (
+	"encoding/yaml"
+	"list"
+)
 
-// Collect all infrastructure resources into a list
-_resources: [
-	_namespace,
-	_observabilityNamespace,
-	_postgresSecret,
-	_postgres,
-	_postgresService,
-	_istiodServiceMonitor,
-	_envoyStatsPodMonitor,
-]
+_resources: list.Concat([
+	_namespaces,
+	[
+		_istiodServiceMonitor,
+		_envoyStatsPodMonitor,
+	],
+])
 
-// Export as YAML stream with --- separators
-stream: yaml.MarshalStream(_resources)
+stream: yaml.MarshalStream(_resources) + "---"

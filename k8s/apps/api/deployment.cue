@@ -2,7 +2,6 @@ package api
 
 import (
 	base "github.com/polo871209/learning/base"
-	platform "github.com/polo871209/learning/platform"
 )
 
 // Health check command for Unix socket communication
@@ -51,7 +50,7 @@ _deployment: base.#Deployment & {
 
 					// Import database credentials
 					envFrom: [{
-						secretRef: name: platform.PostgresSecretName
+						secretRef: name: _postgresSecret.metadata.name
 					}]
 
 					// Resource limits for migration container
@@ -89,7 +88,7 @@ _deployment: base.#Deployment & {
 							configMapRef: name: _config.name
 						},
 						{
-							secretRef: name: platform.PostgresSecretName
+							secretRef: name: _postgresSecret.metadata.name
 						},
 					]
 
@@ -105,31 +104,31 @@ _deployment: base.#Deployment & {
 						},
 					]
 
-				// Health checks for FastAPI via Unix socket
-				livenessProbe: {
-					exec: command: _healthCheckCommand
-					initialDelaySeconds: 30
-					periodSeconds:       10
-					timeoutSeconds:      5
-					failureThreshold:    3
-				}
+					// Health checks for FastAPI via Unix socket
+					livenessProbe: {
+						exec: command: _healthCheckCommand
+						initialDelaySeconds: 30
+						periodSeconds:       10
+						timeoutSeconds:      5
+						failureThreshold:    3
+					}
 
-				readinessProbe: {
-					exec: command: _healthCheckCommand
-					initialDelaySeconds: 5
-					periodSeconds:       5
-					timeoutSeconds:      3
-					failureThreshold:    2
-				}
+					readinessProbe: {
+						exec: command: _healthCheckCommand
+						initialDelaySeconds: 5
+						periodSeconds:       5
+						timeoutSeconds:      3
+						failureThreshold:    2
+					}
 
-				// Startup probe to handle longer initialization
-				startupProbe: {
-					exec: command: _healthCheckCommand
-					initialDelaySeconds: 5
-					periodSeconds:       5
-					timeoutSeconds:      3
-					failureThreshold:    12
-				}
+					// Startup probe to handle longer initialization
+					startupProbe: {
+						exec: command: _healthCheckCommand
+						initialDelaySeconds: 5
+						periodSeconds:       5
+						timeoutSeconds:      3
+						failureThreshold:    12
+					}
 
 					// Override resource limits for FastAPI
 					resources: {

@@ -1,14 +1,11 @@
-package api
+package postgres
 
 import "encoding/yaml"
 
 _resources: [
-	_configMap,
 	_postgresSecret,
-	_deployment,
+	_statefulSet,
 	_service,
-	_sidecar,
-	_serviceMonitor,
 ]
 
 stream: yaml.MarshalStream(_resources) + "---"
