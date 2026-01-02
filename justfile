@@ -1,43 +1,46 @@
-# List available commands
-default:
-    @just --list
-
-# Build application Docker image
+[working-directory: 'api']
 build-app:
-    @cd api && docker build --target app -t api:local .
+    @docker build --target app -t api:local .
     @echo "✓ Application image built: api:local"
 
-# Build migration Docker image
+[working-directory: 'api']
 build-migrations:
-    @cd api && docker build --target migrations -t api-migrations:local .
+    @docker build --target migrations -t api-migrations:local .
     @echo "✓ Migration image built: api-migrations:local"
 
-# Build both Docker images
 build: build-app build-migrations
     @echo "✓ All images built successfully"
 
-# Validate all CUE configurations
-vet:
-    @cd k8s && cue vet ./...
-    @echo "✓ All configurations valid"
-
-# Validate specific app
-vet-app app:
-    @cd k8s && cue vet ./apps/{{app}}/...
-    @echo "✓ {{app}} configuration valid"
-
-# Export specific app to YAML with --- separators
 [working-directory: 'k8s']
-export app:
-    @cue export ./{{app}}/... --out text --expression stream
+export package:
+    @cue export ./{{package}}/... --out text --expression stream
 
 [working-directory: 'k8s']
-apply app:
-    @cue export ./{{app}}/... --out text --expression stream | kubectl apply -f -
+debug package resource:
+    @cue export ./{{package}}/... --out yaml -e {{resource}}
 
 [working-directory: 'k8s']
-delete app:
-    @cue export ./{{app}}/... --out text --expression stream | kubectl delete -f -
+apply package:
+    @cue export ./{{package}}/... --out text --expression stream | kubectl apply -f -
+
+[working-directory: 'k8s']
+delete package:
+    @cue export ./{{package}}/... --out text --expression stream | kubectl delete -f -
+
+# Show diff between CUE export and current cluster state
+[working-directory: 'k8s']
+diff app:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cue export ./{{app}}/... --out text --expression stream | \
+        kubectl diff -f - 2>&1 | \
+        sed '/last-applied-configuration/{N;d;}' | \
+        grep -vE "(generation|neg-status|resourceVersion|uid|creationTimestamp):" | \
+        sed -E $'s/^(\\+\\+\\+.*)$/\033[45m\033[1m\\1\033[22m\033[49m/' | \
+        sed -E $'s/^(---.*)$/\033[44m\033[1m\\1\033[22m\033[49m/' | \
+        sed -E $'s/^(-.*)$/\033[31m\\1\033[39m/' | \
+        sed -E $'s/^(\\+.*)$/\033[32m\\1\033[39m/' | \
+        bat -p -l diff || true
 
 helm-install-istio:
     @helm install istio-base istio/base --namespace istio-system --create-namespace --version 1.28.2
