@@ -12,27 +12,29 @@ _destinationRule: istio.#DestinationRule & {
 	spec: {
 		host: "\(_config.name).\(_config.namespace).svc.cluster.local"
 
-		trafficPolicy: {
-			connectionPool: {
-				tcp: {
-					maxConnections: 100
-					connectTimeout: "10s"
-					idleTimeout:    "1h"
-					tcpKeepalive: {
-						time:     "7200s" // 2 hours
-						interval: "75s"
-						probes:   9
+		if _environment == "prod" {
+			trafficPolicy: {
+				connectionPool: {
+					tcp: {
+						maxConnections: 100
+						connectTimeout: "10s"
+						idleTimeout:    "1h"
+						tcpKeepalive: {
+							time:     "7200s" // 2 hours
+							interval: "75s"
+							probes:   9
+						}
 					}
 				}
-			}
 
-			outlierDetection: {
-				consecutiveGatewayErrors: 5
-				consecutive5xxErrors:     5
-				interval:                 "10s"
-				baseEjectionTime:         "30s"
-				maxEjectionPercent:       50
-				minHealthPercent:         50
+				outlierDetection: {
+					consecutiveGatewayErrors: 5
+					consecutive5xxErrors:     5
+					interval:                 "10s"
+					baseEjectionTime:         "30s"
+					maxEjectionPercent:       50
+					minHealthPercent:         50
+				}
 			}
 		}
 	}

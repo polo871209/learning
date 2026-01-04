@@ -12,27 +12,27 @@ build: build-app build-migrations
     @echo "✓ All images built successfully"
 
 [working-directory: 'k8s']
-export package:
-    @cue export ./{{package}}/... --out text --expression stream
+debug package resource tag='dev':
+    @cue export ./{{package}}/... --out yaml -e {{resource}} -t environment={{tag}}
 
 [working-directory: 'k8s']
-debug package resource:
-    @cue export ./{{package}}/... --out yaml -e {{resource}}
+export package tag='dev':
+    @cue export ./{{package}}/... --out text --expression stream -t environment={{tag}}
 
 [working-directory: 'k8s']
-apply package:
-    @cue export ./{{package}}/... --out text --expression stream | kubectl apply -f -
+apply package tag='dev':
+    @just export {{package}} {{tag}} | kubectl apply -f -
 
 [working-directory: 'k8s']
-delete package:
-    @cue export ./{{package}}/... --out text --expression stream | kubectl delete -f -
+delete package tag='dev':
+    @just export {{package}} {{tag}} | kubectl delete -f -
 
 # Show diff between CUE export and current cluster state
 [working-directory: 'k8s']
-diff app:
+diff app tag='dev':
     #!/usr/bin/env bash
     set -euo pipefail
-    cue export ./{{app}}/... --out text --expression stream | \
+    just export {{app}} {{tag}} | \
         kubectl diff -f - 2>&1 | \
         sed '/last-applied-configuration/{N;d;}' | \
         grep -vE "(generation|neg-status|resourceVersion|uid|creationTimestamp):" | \

@@ -5,6 +5,8 @@ import (
 	"list"
 )
 
+_environment: string | *"dev" @tag(environment)
+
 _resources: list.Concat([
 	_namespaces,
 	[

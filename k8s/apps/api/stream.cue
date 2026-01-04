@@ -2,6 +2,8 @@ package api
 
 import "encoding/yaml"
 
+_environment: string | *"dev" @tag(environment)
+
 _resources: [
 	_configMap,
 	_postgresSecret,
