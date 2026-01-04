@@ -14,7 +14,6 @@ async def create_post(
     post_data: PostCreate,
     db: Database = Depends(get_db),
 ):
-    """Create a new post."""
     try:
         result = await db.execute(
             post_queries.CREATE_POST,
@@ -33,7 +32,6 @@ async def create_post(
         return PostResponse(**cast(dict[str, Any], result))
 
     except Exception as e:
-        # Handle foreign key constraint (invalid user_id)
         if "foreign key" in str(e).lower():
             raise HTTPException(status_code=400, detail="Invalid user_id")
         raise HTTPException(status_code=500, detail=str(e))
@@ -44,7 +42,6 @@ async def get_post(
     post_id: int,
     db: Database = Depends(get_db),
 ):
-    """Get a post by ID."""
     result = await db.execute(
         post_queries.GET_POST_BY_ID,
         (post_id,),
@@ -64,10 +61,6 @@ async def list_posts(
     page_size: int = Query(10, ge=1, le=100),
     db: Database = Depends(get_db),
 ):
-    """
-    List posts with user information (JOIN example).
-    This demonstrates how to handle complex queries with joins.
-    """
     offset = (page - 1) * page_size
 
     results = await db.execute(
@@ -84,7 +77,6 @@ async def get_user_posts(
     user_id: int,
     db: Database = Depends(get_db),
 ):
-    """Get all posts by a specific user."""
     results = await db.execute(
         post_queries.GET_POSTS_BY_USER,
         (user_id,),
@@ -100,7 +92,6 @@ async def update_post(
     post_data: PostUpdate,
     db: Database = Depends(get_db),
 ):
-    """Update a post (partial update)."""
     result = await db.execute(
         post_queries.UPDATE_POST,
         (post_data.title, post_data.content, post_data.published, post_id),
@@ -118,7 +109,6 @@ async def delete_post(
     post_id: int,
     db: Database = Depends(get_db),
 ):
-    """Delete a post."""
     result = await db.execute(
         post_queries.DELETE_POST,
         (post_id,),
@@ -131,19 +121,13 @@ async def delete_post(
     return None
 
 
-# Example: Complex transaction with multiple operations
 @router.post("/{post_id}/publish", response_model=PostResponse)
 async def publish_post(
     post_id: int,
     db: Database = Depends(get_db),
 ):
-    """
-    Publish a post with transaction example.
-    In a real app, this might update multiple tables (post, notifications, etc.)
-    """
     async with db.get_connection() as conn:
         async with conn.transaction():
-            # Update post
             async with conn.cursor() as cur:
                 await cur.execute(
                     post_queries.UPDATE_POST,
@@ -153,11 +137,5 @@ async def publish_post(
 
                 if not result:
                     raise HTTPException(status_code=404, detail="Post not found")
-
-                # Here you could do additional operations like:
-                # - Create notifications
-                # - Update user statistics
-                # - Log the activity
-                # All within the same transaction
 
                 return PostResponse(**dict(result))

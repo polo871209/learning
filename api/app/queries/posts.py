@@ -1,16 +1,9 @@
-"""
-SQL queries for post operations.
-Examples of more complex queries with JOINs and CTEs.
-"""
-
-# CREATE
 CREATE_POST = """
     INSERT INTO posts (title, content, published, user_id, created_at, updated_at)
     VALUES (%s, %s, %s, %s, NOW(), NOW())
     RETURNING id, title, content, published, user_id, created_at, updated_at
 """
 
-# READ
 GET_POST_BY_ID = """
     SELECT id, title, content, published, user_id, created_at, updated_at
     FROM posts
@@ -32,7 +25,6 @@ GET_POSTS_BY_USER = """
     ORDER BY created_at DESC
 """
 
-# Complex query: Get posts with user information (JOIN)
 GET_POSTS_WITH_USER = """
     SELECT 
         p.id,
@@ -51,7 +43,6 @@ GET_POSTS_WITH_USER = """
     LIMIT %s OFFSET %s
 """
 
-# Complex query: Full-text search with ranking
 SEARCH_POSTS = """
     SELECT 
         id, 
@@ -73,7 +64,6 @@ SEARCH_POSTS = """
     LIMIT %s OFFSET %s
 """
 
-# Complex query: Using CTE (Common Table Expression)
 GET_POPULAR_POSTS = """
     WITH post_stats AS (
         SELECT 
@@ -98,7 +88,6 @@ GET_POPULAR_POSTS = """
     LIMIT %s
 """
 
-# UPDATE
 UPDATE_POST = """
     UPDATE posts
     SET 
@@ -110,15 +99,8 @@ UPDATE_POST = """
     RETURNING id, title, content, published, user_id, created_at, updated_at
 """
 
-# DELETE
 DELETE_POST = """
     DELETE FROM posts
     WHERE id = %s
     RETURNING id
-"""
-
-# Transaction example: Update post and create audit log
-UPDATE_POST_WITH_AUDIT = """
-    -- This would be executed in a transaction
-    -- See the router for transaction usage example
 """

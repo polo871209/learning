@@ -15,26 +15,18 @@ from app.telemetry import setup_telemetry
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Lifespan context manager for startup and shutdown events.
-    This handles database connection pool initialization and cleanup.
-    """
-    # Startup: Initialize telemetry
     setup_telemetry(service_name=settings.app_name)
     print("OpenTelemetry instrumentation initialized")
 
-    # Initialize database pool
     await db.connect()
     print(f"Starting {settings.app_name}")
 
     yield
 
-    # Shutdown: Close database pool
     await db.disconnect()
     print("Shutting down gracefully")
 
 
-# Create FastAPI app
 app = FastAPI(
     title=settings.app_name,
     description="FastAPI + PostgreSQL with raw SQL",
@@ -42,29 +34,23 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware (configure for your needs)
 app.add_middleware(
-    cast(type, CORSMiddleware),  # Cast to satisfy type checker
-    allow_origins=["*"],  # In production, specify actual origins
+    cast(type, CORSMiddleware),
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers
 app.include_router(users.router, prefix=settings.api_prefix)
 app.include_router(posts.router, prefix=settings.api_prefix)
 
-# Instrument FastAPI with OpenTelemetry
 FastAPIInstrumentor.instrument_app(app)
-
-# Instrument psycopg for database tracing
 PsycopgInstrumentor().instrument()
 
 
 @app.get("/")
 async def root():
-    """Root endpoint."""
     return {
         "message": "Welcome to FastAPI + PostgreSQL API",
         "docs": "/docs",
@@ -74,7 +60,6 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint."""
     return {
         "status": "healthy",
         "database": "connected" if db.pool else "disconnected",
@@ -83,16 +68,4 @@ async def health_check():
 
 @app.get("/metrics")
 async def metrics():
-    """Prometheus metrics endpoint."""
     return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,  # Disable in production
-    )

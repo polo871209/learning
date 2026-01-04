@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-Simple stress test script for the FastAPI application.
-Generates traffic to various endpoints to test performance and observability.
-Target: 6 posts per second with 10 concurrent processes.
-"""
 
 import asyncio
 import random
@@ -22,13 +17,12 @@ class StatsDict(TypedDict):
     errors: defaultdict[str, int]
 
 
-# Configuration
 BASE_URL = "http://api.app.svc.cluster.local:8000"
 API_PREFIX = "/api/v1"
-CONCURRENT_PROCESSES = 10  # Number of concurrent processes
-DURATION_SECONDS = 600  # How long to run the test
-TARGET_POSTS_PER_SECOND = 6  # Target post creation rate
-POST_INTERVAL = 1.0 / TARGET_POSTS_PER_SECOND  # ~167ms between posts
+CONCURRENT_PROCESSES = 10
+DURATION_SECONDS = 600
+TARGET_POSTS_PER_SECOND = 6
+POST_INTERVAL = 1.0 / TARGET_POSTS_PER_SECOND
 
 
 class StressTest:
@@ -49,7 +43,6 @@ class StressTest:
     async def create_user(
         self, session: aiohttp.ClientSession
     ) -> dict[str, Any] | None:
-        """Create a new user."""
         try:
             async with session.post(
                 f"{self.base_url}{self.api_prefix}/users/",
@@ -73,7 +66,6 @@ class StressTest:
     async def create_post(
         self, session: aiohttp.ClientSession
     ) -> dict[str, Any] | None:
-        """Create a new post."""
         if not self.user_ids:
             return None
 
@@ -100,7 +92,6 @@ class StressTest:
             return None
 
     async def get_users(self, session: aiohttp.ClientSession) -> dict[str, Any] | None:
-        """List users."""
         try:
             page = random.randint(1, 5)
             async with session.get(
@@ -116,7 +107,6 @@ class StressTest:
             return None
 
     async def get_posts(self, session: aiohttp.ClientSession) -> dict[str, Any] | None:
-        """List posts."""
         try:
             page = random.randint(1, 5)
             async with session.get(
@@ -134,7 +124,6 @@ class StressTest:
     async def get_user_by_id(
         self, session: aiohttp.ClientSession
     ) -> dict[str, Any] | None:
-        """Get a specific user."""
         if not self.user_ids:
             return None
 
@@ -154,7 +143,6 @@ class StressTest:
     async def get_post_by_id(
         self, session: aiohttp.ClientSession
     ) -> dict[str, Any] | None:
-        """Get a specific post."""
         if not self.post_ids:
             return None
 
@@ -172,27 +160,19 @@ class StressTest:
             return None
 
     async def _record_error(self, error: str):
-        """Record error for statistics."""
         async with self.lock:
             self.stats["errors"][error] += 1
 
     async def post_creator_process(self, process_id: int, duration: int):
-        """
-        Dedicated process that creates posts at regular intervals.
-        Each process is responsible for creating posts to reach the target rate.
-        """
         async with aiohttp.ClientSession() as session:
             end_time = time.time() + duration
             post_count = 0
 
-            # Calculate posts per process to reach target rate
-            # 6 posts/sec total / 10 processes = 0.6 posts/sec per process
             interval = POST_INTERVAL * CONCURRENT_PROCESSES
 
             while time.time() < end_time:
                 start = time.time()
 
-                # Create a post
                 result = await self.create_post(session)
 
                 async with self.lock:
@@ -203,7 +183,6 @@ class StressTest:
                     else:
                         self.stats["failed_requests"] += 1
 
-                # Wait for the next interval
                 elapsed = time.time() - start
                 sleep_time = max(0, interval - elapsed)
                 await asyncio.sleep(sleep_time)
@@ -211,25 +190,19 @@ class StressTest:
             print(f"Process {process_id} created {post_count} posts")
 
     async def background_traffic_generator(self, process_id: int, duration: int):
-        """
-        Generate background traffic (reads, updates) to simulate realistic load.
-        This runs alongside post creation.
-        """
         async with aiohttp.ClientSession() as session:
             end_time = time.time() + duration
             request_count = 0
 
             while time.time() < end_time:
-                # Read-heavy traffic pattern
                 actions = [
-                    (self.get_posts, 0.35),  # 35% - read posts
-                    (self.get_users, 0.25),  # 25% - read users
-                    (self.get_post_by_id, 0.20),  # 20% - get specific post
-                    (self.get_user_by_id, 0.15),  # 15% - get specific user
-                    (self.create_user, 0.05),  # 5% - create user
+                    (self.get_posts, 0.35),
+                    (self.get_users, 0.25),
+                    (self.get_post_by_id, 0.20),
+                    (self.get_user_by_id, 0.15),
+                    (self.create_user, 0.05),
                 ]
 
-                # Weighted random choice
                 rand = random.random()
                 cumulative = 0
                 selected_action = actions[0][0]
@@ -240,7 +213,6 @@ class StressTest:
                         selected_action = action
                         break
 
-                # Execute the action
                 try:
                     result = await selected_action(session)
                     async with self.lock:
@@ -257,31 +229,25 @@ class StressTest:
                         self.stats["failed_requests"] += 1
                     await self._record_error(str(e))
 
-                # Small delay between requests (faster than post creation)
                 await asyncio.sleep(random.uniform(0.05, 0.2))
 
             print(f"Background process {process_id} completed {request_count} requests")
 
     async def run(self, concurrent_processes: int, duration: int):
-        """Run the stress test with multiple concurrent processes."""
         print(f"Starting stress test with {concurrent_processes} concurrent processes")
         print(f"Duration: {duration} seconds")
         print(f"Target: {TARGET_POSTS_PER_SECOND} posts/second")
         print(f"Base URL: {BASE_URL}")
         print("-" * 50)
 
-        # Seed some initial data
         print("Seeding initial data...")
         async with aiohttp.ClientSession() as session:
-            # Create some initial users
             for _ in range(10):
                 await self.create_user(session)
 
-            # Create some initial posts
             for _ in range(20):
                 await self.create_post(session)
 
-        # Reset stats after seeding
         async with self.lock:
             self.stats: StatsDict = {
                 "total_requests": 0,
@@ -294,17 +260,13 @@ class StressTest:
         print(f"Seeded {len(self.user_ids)} users and {len(self.post_ids)} posts")
         print("-" * 50)
 
-        # Start the test
         start_time = time.time()
 
-        # Create post creator processes and background traffic generators
         tasks = []
 
-        # Post creator processes
         for i in range(concurrent_processes):
             tasks.append(self.post_creator_process(i, duration))
 
-        # Background traffic generators
         for i in range(concurrent_processes):
             tasks.append(self.background_traffic_generator(i, duration))
 
@@ -312,7 +274,6 @@ class StressTest:
 
         elapsed_time = time.time() - start_time
 
-        # Print statistics
         print("\n" + "=" * 50)
         print("STRESS TEST RESULTS")
         print("=" * 50)
@@ -336,7 +297,6 @@ class StressTest:
 
 
 async def main():
-    """Main entry point."""
     test = StressTest(BASE_URL, API_PREFIX)
     try:
         await test.run(CONCURRENT_PROCESSES, DURATION_SECONDS)

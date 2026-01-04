@@ -2,7 +2,6 @@ package api
 
 import core "cue.dev/x/k8s.io/api/core/v1"
 
-// Kubernetes Service for FastAPI application
 _service: core.#Service & {
 	metadata: {
 		name:      _config.name
@@ -20,7 +19,6 @@ _service: core.#Service & {
 			targetPort: _config.port
 		}]
 
-		// Optional: session affinity for sticky sessions
 		sessionAffinity: "None"
 	}
 }

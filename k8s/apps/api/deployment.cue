@@ -4,14 +4,11 @@ import (
 	base "github.com/polo871209/learning/base"
 )
 
-// Health check command for Unix socket communication
 _healthCheckCommand: [
 	"python3",
 	"-c",
 	"import socket, sys; s = socket.socket(socket.AF_UNIX); s.connect('/var/run/app.sock'); s.send(b'GET /health HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n'); r = s.recv(1024); sys.exit(0 if b'200' in r else 1)",
 ]
-
-// FastAPI deployment with health checks, environment variables, and proper volume mounts
 _deployment: base.#Deployment & {
 	metadata: {
 		name:      _config.name
@@ -25,7 +22,6 @@ _deployment: base.#Deployment & {
 		template: {
 			metadata: {
 				annotations: {
-					// Istio annotations to mount socket volume in sidecar proxy
 					"sidecar.istio.io/userVolume": """
 						[{
 							"name": "socket",
@@ -42,18 +38,15 @@ _deployment: base.#Deployment & {
 			}
 
 			spec: {
-				// Init container for database migrations
 				initContainers: [{
 					name:            "\(_config.name)-migrations"
 					image:           _config.migrationImage
 					imagePullPolicy: "IfNotPresent"
 
-					// Import database credentials
 					envFrom: [{
 						secretRef: name: _postgresSecret.metadata.name
 					}]
 
-					// Resource limits for migration container
 					resources: {
 						limits: {
 							memory: "256Mi"
@@ -67,7 +60,6 @@ _deployment: base.#Deployment & {
 					image:           _config.image
 					imagePullPolicy: "IfNotPresent"
 
-					// Override CMD to use Unix Domain Socket with Istio
 					command: ["uvicorn"]
 					args: [
 						"app.main:app",
@@ -75,14 +67,12 @@ _deployment: base.#Deployment & {
 						"--forwarded-allow-ips", "*",
 					]
 
-					// Container port
 					ports: [{
 						name:          "http"
 						containerPort: _config.port
 						protocol:      "TCP"
 					}]
 
-					// Import entire ConfigMap and Secret as environment variables
 					envFrom: [
 						{
 							configMapRef: name: _config.name
@@ -92,7 +82,6 @@ _deployment: base.#Deployment & {
 						},
 					]
 
-					// Additional environment variables
 					env: [
 						{
 							name:  "PYTHONUNBUFFERED"
@@ -104,33 +93,28 @@ _deployment: base.#Deployment & {
 						},
 					]
 
-					// Health checks for FastAPI via Unix socket
-					livenessProbe: {
-						exec: command: _healthCheckCommand
-						initialDelaySeconds: 30
-						periodSeconds:       10
-						timeoutSeconds:      5
-						failureThreshold:    3
-					}
+				startupProbe: {
+					exec: command: _healthCheckCommand
+					initialDelaySeconds: 5
+					periodSeconds:       5
+					timeoutSeconds:      3
+					failureThreshold:    12
+				}
+
+				livenessProbe: {
+					exec: command: _healthCheckCommand
+					periodSeconds:    10
+					timeoutSeconds:   5
+					failureThreshold: 3
+				}
 
 					readinessProbe: {
 						exec: command: _healthCheckCommand
-						initialDelaySeconds: 5
-						periodSeconds:       5
-						timeoutSeconds:      3
-						failureThreshold:    2
+						periodSeconds:    5
+						timeoutSeconds:   3
+						failureThreshold: 2
 					}
 
-					// Startup probe to handle longer initialization
-					startupProbe: {
-						exec: command: _healthCheckCommand
-						initialDelaySeconds: 5
-						periodSeconds:       5
-						timeoutSeconds:      3
-						failureThreshold:    12
-					}
-
-					// Override resource limits for FastAPI
 					resources: {
 						limits: {
 							memory: "512Mi"
@@ -138,7 +122,6 @@ _deployment: base.#Deployment & {
 						}
 					}
 
-					// Volume mounts for writable directories and socket (since root filesystem is read-only)
 					volumeMounts: [
 						{
 							name:      "tmp"
@@ -155,7 +138,6 @@ _deployment: base.#Deployment & {
 					]
 				}]
 
-				// Volumes for writable directories and socket sharing
 				volumes: [
 					{
 						name: "tmp"

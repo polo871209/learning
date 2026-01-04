@@ -14,7 +14,6 @@ async def create_user(
     user_data: UserCreate,
     db: Database = Depends(get_db),
 ):
-    """Create a new user."""
     try:
         result = await db.execute(
             user_queries.CREATE_USER,
@@ -28,7 +27,6 @@ async def create_user(
         return UserResponse(**cast(dict[str, Any], result))
 
     except Exception as e:
-        # Handle unique constraint violation (duplicate email)
         if "unique constraint" in str(e).lower():
             raise HTTPException(status_code=400, detail="Email already exists")
         raise HTTPException(status_code=500, detail=str(e))
@@ -39,7 +37,6 @@ async def get_user(
     user_id: int,
     db: Database = Depends(get_db),
 ):
-    """Get a user by ID."""
     result = await db.execute(
         user_queries.GET_USER_BY_ID,
         (user_id,),
@@ -59,17 +56,14 @@ async def list_users(
     is_active: bool = Query(True),
     db: Database = Depends(get_db),
 ):
-    """List users with pagination."""
     offset = (page - 1) * page_size
 
-    # Get users with total count in single query using window function
     users_result = await db.execute(
         user_queries.GET_ALL_USERS,
         (is_active, page_size, offset),
         fetch="all",
     )
 
-    # Extract total from first row, or default to 0 if no results
     total = 0
     if users_result:
         first_row = cast(list[dict[str, Any]], users_result)[0]
@@ -91,7 +85,6 @@ async def update_user(
     user_data: UserUpdate,
     db: Database = Depends(get_db),
 ):
-    """Update a user (partial update)."""
     try:
         result = await db.execute(
             user_queries.UPDATE_USER,
@@ -116,7 +109,6 @@ async def delete_user(
     soft: bool = Query(True, description="Soft delete (deactivate) vs hard delete"),
     db: Database = Depends(get_db),
 ):
-    """Delete a user (soft or hard delete)."""
     query = user_queries.SOFT_DELETE_USER if soft else user_queries.DELETE_USER
 
     result = await db.execute(
@@ -139,7 +131,6 @@ async def search_users(
     is_active: bool = Query(True),
     db: Database = Depends(get_db),
 ):
-    """Search users by name or email (case-insensitive)."""
     offset = (page - 1) * page_size
     search_term = f"%{q}%"
 
@@ -152,7 +143,6 @@ async def search_users(
     return [UserResponse(**cast(dict[str, Any], user)) for user in (results or [])]
 
 
-# Example: Complex query endpoint
 @router.get("/with-stats/", response_model=list[dict])
 async def get_users_with_stats(
     page: int = Query(1, ge=1),
@@ -160,10 +150,6 @@ async def get_users_with_stats(
     is_active: bool = Query(True),
     db: Database = Depends(get_db),
 ):
-    """
-    Get users with their post count (example of complex query).
-    Returns raw dict to show flexibility with complex queries.
-    """
     offset = (page - 1) * page_size
 
     results = await db.execute(
@@ -175,21 +161,15 @@ async def get_users_with_stats(
     return results or []
 
 
-# Example: Transaction usage
 @router.post("/batch/", status_code=201)
 async def create_users_batch(
     users: list[UserCreate],
     db: Database = Depends(get_db),
 ):
-    """
-    Create multiple users in a transaction using efficient batch insert.
-    Uses executemany for better performance.
-    """
     if not users:
         raise HTTPException(status_code=400, detail="No users provided")
 
     try:
-        # Use executemany for efficient batch insert
         await db.execute_many(
             user_queries.BATCH_CREATE_USERS,
             [(user.name, user.email, user.is_active) for user in users],
@@ -200,7 +180,6 @@ async def create_users_batch(
             "message": f"Successfully created {len(users)} users",
         }
     except Exception as e:
-        # Handle unique constraint violation (duplicate email)
         if "unique constraint" in str(e).lower():
             raise HTTPException(
                 status_code=400, detail="One or more emails already exist"

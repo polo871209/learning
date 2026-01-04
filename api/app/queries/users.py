@@ -1,21 +1,9 @@
-"""
-SQL queries for user operations.
-
-Best practices:
-1. Keep SQL queries in separate files for maintainability
-2. Use named parameters for complex queries
-3. Document what each query does
-4. Include example complex queries (joins, aggregations, etc.)
-"""
-
-# CREATE
 CREATE_USER = """
     INSERT INTO users (name, email, is_active, created_at, updated_at)
     VALUES (%s, %s, %s, NOW(), NOW())
     RETURNING id, name, email, is_active, created_at, updated_at
 """
 
-# READ
 GET_USER_BY_ID = """
     SELECT id, name, email, is_active, created_at, updated_at
     FROM users
@@ -43,14 +31,6 @@ GET_ALL_USERS = """
     LIMIT %s OFFSET %s
 """
 
-# Deprecated - use GET_ALL_USERS with window function instead
-GET_USERS_COUNT = """
-    SELECT COUNT(*) as total
-    FROM users
-    WHERE is_active = %s
-"""
-
-# UPDATE
 UPDATE_USER = """
     UPDATE users
     SET 
@@ -62,7 +42,6 @@ UPDATE_USER = """
     RETURNING id, name, email, is_active, created_at, updated_at
 """
 
-# DELETE (soft delete recommended)
 DELETE_USER = """
     DELETE FROM users
     WHERE id = %s
@@ -76,9 +55,6 @@ SOFT_DELETE_USER = """
     RETURNING id
 """
 
-# COMPLEX QUERIES EXAMPLES
-
-# Search users with ILIKE (case-insensitive)
 SEARCH_USERS = """
     SELECT id, name, email, is_active, created_at, updated_at
     FROM users
@@ -89,7 +65,6 @@ SEARCH_USERS = """
     LIMIT %s OFFSET %s
 """
 
-# Get users with their post count (JOIN + aggregation)
 GET_USERS_WITH_POST_COUNT = """
     SELECT 
         u.id,
@@ -107,7 +82,6 @@ GET_USERS_WITH_POST_COUNT = """
     LIMIT %s OFFSET %s
 """
 
-# Batch insert users (use with executemany)
 BATCH_CREATE_USERS = """
     INSERT INTO users (name, email, is_active, created_at, updated_at)
     VALUES (%s, %s, %s, NOW(), NOW())

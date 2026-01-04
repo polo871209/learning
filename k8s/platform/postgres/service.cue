@@ -2,7 +2,6 @@ package postgres
 
 import core "cue.dev/x/k8s.io/api/core/v1"
 
-// Kubernetes Service for PostgreSQL
 _service: core.#Service & {
 	metadata: {
 		name:      _config.name
@@ -20,7 +19,6 @@ _service: core.#Service & {
 			targetPort: 5432
 		}]
 
-		// Headless service for StatefulSet
 		clusterIP: "None"
 	}
 }

@@ -2,14 +2,11 @@ package base
 
 import core "cue.dev/x/k8s.io/api/core/v1"
 
-// PostgreSQL secret template
-// Can be reused across namespaces by overriding metadata
 #PostgresSecret: core.#Secret & {
 	apiVersion: "v1"
 	kind:       "Secret"
 	type:       "Opaque"
 
-	// Must be provided by consumer
 	metadata: {
 		name:      "postgres-credentials"
 		namespace: string

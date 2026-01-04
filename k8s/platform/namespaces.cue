@@ -6,7 +6,6 @@ _istio_label: {
 	"istio-injection": "enabled"
 }
 
-// List of all namespace resources
 _namespaces: [...core.#Namespace] & [
 	{
 		metadata: {

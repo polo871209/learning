@@ -2,7 +2,6 @@ package postgres
 
 import apps "cue.dev/x/k8s.io/api/apps/v1"
 
-// PostgreSQL StatefulSet for persistent database
 _statefulSet: apps.#StatefulSet & {
 	metadata: {
 		name:      _config.name
@@ -20,10 +19,9 @@ _statefulSet: apps.#StatefulSet & {
 			metadata: labels: _config.labels
 
 			spec: {
-				// Security context at pod level
 				securityContext: {
 					runAsNonRoot:        true
-					runAsUser:           999 // postgres user UID
+					runAsUser:           999
 					runAsGroup:          999
 					fsGroup:             999
 					fsGroupChangePolicy: "OnRootMismatch"
@@ -40,7 +38,6 @@ _statefulSet: apps.#StatefulSet & {
 						protocol:      "TCP"
 					}]
 
-					// Environment variables from Secret
 					envFrom: [
 						{
 							secretRef: name: _postgresSecret.metadata.name
@@ -53,7 +50,6 @@ _statefulSet: apps.#StatefulSet & {
 						},
 					]
 
-					// Health checks
 					livenessProbe: {
 						exec: command: ["pg_isready", "-U", "postgres", "-h", "localhost"]
 						initialDelaySeconds: 30
@@ -70,7 +66,6 @@ _statefulSet: apps.#StatefulSet & {
 						failureThreshold:    2
 					}
 
-					// Resources
 					resources: {
 						limits: {
 							memory: "512Mi"
@@ -78,13 +73,11 @@ _statefulSet: apps.#StatefulSet & {
 						}
 					}
 
-					// Volume mount for persistent data
 					volumeMounts: [{
 						name:      "postgres-data"
 						mountPath: "/var/lib/postgresql/data"
 					}]
 
-					// Container security context
 					securityContext: {
 						allowPrivilegeEscalation: false
 						capabilities: drop: ["ALL"]
@@ -94,7 +87,6 @@ _statefulSet: apps.#StatefulSet & {
 			}
 		}
 
-		// Volume claim templates for persistent storage
 		volumeClaimTemplates: [{
 			metadata: name: "postgres-data"
 			spec: {

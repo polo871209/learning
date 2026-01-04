@@ -2,7 +2,6 @@ package api
 
 import servicemonitor "github.com/polo871209/learning/base/crds/prometheus_operator/v1"
 
-// ServiceMonitor for Prometheus scraping
 _serviceMonitor: servicemonitor.#ServiceMonitor & {
 	metadata: {
 		name:      _config.name
@@ -13,26 +12,21 @@ _serviceMonitor: servicemonitor.#ServiceMonitor & {
 	}
 
 	spec: {
-		// Select the service to monitor
 		selector: matchLabels: {
 			app: _config.labels.app
 		}
 
-		// Endpoint configuration for scraping
 		endpoints: [{
 			port:     "http"
 			path:     "/metrics"
 			interval: "30s"
 			scheme:   "http"
-			// Drop unnecessary metrics to reduce cardinality
 			metricRelabelings: [
-				// Drop health check endpoint metrics
 				{
 					sourceLabels: ["__name__", "path"]
 					action: "drop"
 					regex:  "api_request_duration_seconds.*;/health"
 				},
-				// Drop favicon endpoint metrics
 				{
 					sourceLabels: ["__name__", "path"]
 					action: "drop"

@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-"""
-Development server startup script.
-
-Usage:
-    python dev.py
-    or
-    uv run python dev.py
-"""
 
 if __name__ == "__main__":
     import uvicorn
