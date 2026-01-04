@@ -1,11 +1,14 @@
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Any, cast
+from typing import Any, AsyncGenerator, cast
+
 import psycopg
 from psycopg.rows import dict_row
-from psycopg.sql import SQL, Composable
 from psycopg_pool import AsyncConnectionPool
 
 from app.config import settings
+from app.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class Database:
@@ -21,12 +24,14 @@ class Database:
             open=False,
         )
         await self.pool.open()
-        print("Database pool created successfully")
+        logger.info(
+            f"Database pool created successfully (min: {settings.db_pool_min_size}, max: {settings.db_pool_max_size})"
+        )
 
     async def disconnect(self):
         if self.pool:
             await self.pool.close()
-            print("Database pool closed")
+            logger.info("Database pool closed")
 
     @asynccontextmanager
     async def get_connection(self) -> AsyncGenerator[psycopg.AsyncConnection, None]:

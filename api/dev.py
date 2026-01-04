@@ -2,6 +2,7 @@
 
 if __name__ == "__main__":
     import uvicorn
+    from app.logger import LogConfig
 
     uvicorn.run(
         "app.main:app",
@@ -9,5 +10,5 @@ if __name__ == "__main__":
         port=8000,
         reload=True,
         reload_dirs=["app"],
-        log_level="info",
+        log_config=LogConfig.get_config(),
     )

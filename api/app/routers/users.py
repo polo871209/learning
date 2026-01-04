@@ -1,11 +1,13 @@
-from typing import cast, Any
+from typing import Any, cast
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.database import Database, get_db
-from app.models import UserCreate, UserUpdate, UserResponse, UserListResponse
+from app.logger import get_logger
+from app.models import UserCreate, UserListResponse, UserResponse, UserUpdate
 from app.queries import users as user_queries
 
-
+logger = get_logger(__name__)
 router = APIRouter(prefix="/users", tags=["users"])
 
 
@@ -15,6 +17,7 @@ async def create_user(
     db: Database = Depends(get_db),
 ):
     try:
+        logger.info(f"Creating user with email: {user_data.email}")
         result = await db.execute(
             user_queries.CREATE_USER,
             (user_data.name, user_data.email, user_data.is_active),
@@ -22,13 +25,18 @@ async def create_user(
         )
 
         if not result:
+            logger.error(f"Failed to create user with email: {user_data.email}")
             raise HTTPException(status_code=500, detail="Failed to create user")
 
+        user_id = cast(dict[str, Any], result).get("id")
+        logger.info(f"Successfully created user with ID: {user_id}")
         return UserResponse(**cast(dict[str, Any], result))
 
     except Exception as e:
         if "unique constraint" in str(e).lower():
+            logger.warning(f"Duplicate email attempted: {user_data.email}")
             raise HTTPException(status_code=400, detail="Email already exists")
+        logger.error(f"Error creating user: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -170,18 +178,22 @@ async def create_users_batch(
         raise HTTPException(status_code=400, detail="No users provided")
 
     try:
+        logger.info(f"Starting batch creation of {len(users)} users")
         await db.execute_many(
             user_queries.BATCH_CREATE_USERS,
             [(user.name, user.email, user.is_active) for user in users],
         )
 
+        logger.info(f"Successfully created {len(users)} users in batch")
         return {
             "created": len(users),
             "message": f"Successfully created {len(users)} users",
         }
     except Exception as e:
         if "unique constraint" in str(e).lower():
+            logger.warning("Batch creation failed due to duplicate emails")
             raise HTTPException(
                 status_code=400, detail="One or more emails already exist"
             )
+        logger.error(f"Batch creation failed: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

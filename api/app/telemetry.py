@@ -1,12 +1,17 @@
-from opentelemetry import metrics
+from opentelemetry import metrics, trace
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.view import View
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.sdk.trace import TracerProvider
 
 
 def setup_telemetry(service_name: str) -> PrometheusMetricReader:
     resource = Resource(attributes={SERVICE_NAME: service_name})
+
+    tracer_provider = TracerProvider(resource=resource)
+    trace.set_tracer_provider(tracer_provider)
+
     prometheus_reader = PrometheusMetricReader()
 
     views = [

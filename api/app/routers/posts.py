@@ -1,10 +1,10 @@
-from typing import cast, Any
+from typing import Any, cast
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.database import Database, get_db
-from app.models import PostCreate, PostUpdate, PostResponse, PostWithUser
+from app.models import PostCreate, PostResponse, PostUpdate, PostWithUser
 from app.queries import posts as post_queries
-
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 

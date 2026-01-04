@@ -9,22 +9,27 @@ from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from app.config import settings
 from app.database import db
+from app.logger import get_logger, setup_logging
 from app.routers import posts, users
 from app.telemetry import setup_telemetry
+
+# Initialize logging before anything else
+setup_logging()
+logger = get_logger()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_telemetry(service_name=settings.app_name)
-    print("OpenTelemetry instrumentation initialized")
+    logger.info("OpenTelemetry instrumentation initialized")
 
     await db.connect()
-    print(f"Starting {settings.app_name}")
+    logger.info(f"Starting {settings.app_name}")
 
     yield
 
     await db.disconnect()
-    print("Shutting down gracefully")
+    logger.info("Shutting down gracefully")
 
 
 app = FastAPI(
