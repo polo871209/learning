@@ -1,6 +1,31 @@
 # syntax=docker/dockerfile:1
+# ref: https://github.com/BretFisher/mastodon/blob/chainguard/Dockerfile 
 
-# Base stage with UV and Python setup
+# wolfi-baselayout
+FROM az871209/wolfi-base:test AS base
+
+FROM cgr.dev/chainguard/wolfi-base:latest AS prep-python
+COPY --from=base / /base-chroot
+
+RUN apk add --no-script --no-commit-hooks --no-cache --root /base-chroot bash-binsh
+RUN apk add --no-cache --root /base-chroot \
+      ca-certificates \
+      tzdata \
+      python-3.14
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Smoketest
+RUN chroot /base-chroot python --version
+RUN apk del --no-script --no-commit-hooks --no-cache --root /base-chroot bash-binsh
+
+FROM base AS python-prod
+COPY --from=prep-python /base-chroot /
+USER nonroot
+
 FROM cgr.dev/chainguard/wolfi-base:latest AS base-uv
 
 RUN apk add --no-cache \
@@ -20,42 +45,24 @@ ENV PYTHONUNBUFFERED=1 \
 FROM base-uv AS migration-builder
 
 WORKDIR /migrations
-
-# Copy project files
 COPY pyproject.toml uv.lock ./
 
-# Install only migration dependencies
-RUN uv sync --frozen --no-install-project --only-group migration
+RUN uv sync --frozen --only-group migration
 
 # Migration runtime stage
-FROM cgr.dev/chainguard/wolfi-base:latest AS migrations
+FROM python-prod AS migrations
 
-RUN apk add --no-cache \
-      ca-certificates \
-      python-3.14 \
-      tzdata
-
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPATH="/migrations" \
+ENV PYTHONPATH="/migrations" \
     PATH="/migrations/.venv/bin:$PATH"
 
 WORKDIR /migrations
-
-# Copy virtual environment from builder
 COPY --from=migration-builder --chown=nonroot:nonroot /migrations/.venv /migrations/.venv
 
-USER nonroot
-
-# Copy alembic configuration and migrations
 COPY --chown=nonroot:nonroot alembic.ini ./
 COPY --chown=nonroot:nonroot alembic/ ./alembic/
 COPY --chown=nonroot:nonroot app/models.py ./app/models.py
 COPY --chown=nonroot:nonroot app/config.py ./app/config.py
 COPY --chown=nonroot:nonroot app/__init__.py ./app/__init__.py
-
-# Default command runs migrations
-CMD ["python", "-m", "alembic", "upgrade", "head"]
 
 # ============================================
 # Application Builder Stage
@@ -63,32 +70,17 @@ CMD ["python", "-m", "alembic", "upgrade", "head"]
 FROM base-uv AS app-builder
 
 WORKDIR /app
-
-# Copy application dependencies (without alembic)
 COPY pyproject.toml uv.lock ./
 
 RUN uv sync --frozen
 
 # Application runtime stage
-FROM cgr.dev/chainguard/wolfi-base:latest AS app
+FROM python-prod AS app
 
-RUN apk add --no-cache \
-      ca-certificates \
-      python-3.14 \
-      tzdata
-
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPATH="/app"
+ENV PYTHONPATH="/app" \
+    PATH="/app/.venv/bin:$PATH"
 
 WORKDIR /app
-
 COPY --from=app-builder --chown=nonroot:nonroot /app/.venv /app/.venv
 
-USER nonroot
-
-ENV PATH="/app/.venv/bin:$PATH"
-
 COPY --chown=nonroot:nonroot app/ ./app/
-
-EXPOSE 8000/tcp

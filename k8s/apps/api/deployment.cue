@@ -47,6 +47,11 @@ _deployment: base.#Deployment & {
 						secretRef: name: _postgresSecret.metadata.name
 					}]
 
+					command: ["alembic"]
+					args: [
+						"upgrade",
+						"head",
+					]
 					resources: {
 						limits: {
 							memory: "256Mi"
@@ -93,20 +98,20 @@ _deployment: base.#Deployment & {
 						},
 					]
 
-				startupProbe: {
-					exec: command: _healthCheckCommand
-					initialDelaySeconds: 5
-					periodSeconds:       5
-					timeoutSeconds:      3
-					failureThreshold:    12
-				}
+					startupProbe: {
+						exec: command: _healthCheckCommand
+						initialDelaySeconds: 5
+						periodSeconds:       5
+						timeoutSeconds:      3
+						failureThreshold:    12
+					}
 
-				livenessProbe: {
-					exec: command: _healthCheckCommand
-					periodSeconds:    10
-					timeoutSeconds:   5
-					failureThreshold: 3
-				}
+					livenessProbe: {
+						exec: command: _healthCheckCommand
+						periodSeconds:    10
+						timeoutSeconds:   5
+						failureThreshold: 3
+					}
 
 					readinessProbe: {
 						exec: command: _healthCheckCommand
