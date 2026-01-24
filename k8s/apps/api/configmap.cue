@@ -22,7 +22,7 @@ _configMap: core.#ConfigMap & {
 
 		POSTGRES_DB: "mydb"
 
-		DATABASE_HOST: "postgres.\(_config.namespace).svc.cluster.local"
+		DATABASE_HOST: "postgres.\(_config.namespace).svc.cluster.local."
 		DATABASE_PORT: "5432"
 	}
 }
