@@ -1,12 +1,5 @@
-[working-directory: 'api']
-build-app:
-    @docker build --target app -t api:local .
-
-[working-directory: 'api']
-build-migrations:
-    @docker build --target migrations -t api-migrations:local .
-
-build: build-app build-migrations
+build:
+    @docker buildx bake
 
 [working-directory: 'k8s']
 debug package resource tag='dev':
