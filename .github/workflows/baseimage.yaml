@@ -1,0 +1,112 @@
+name: Apko build base image
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build ${{ matrix.variant }} image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      matrix:
+        include:
+          - variant: base
+            config: .github/apko/baseimage.yaml
+            image: az871209/baseimage
+          - variant: dev
+            config: .github/apko/baseimage-dev.yaml
+            image: az871209/baseimage-dev
+    outputs:
+      variant: ${{ matrix.variant }}
+      image: ${{ matrix.image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build image with apko
+        uses: chainguard-images/actions/apko-build@main
+        with:
+          config: ${{ matrix.config }}
+          tag: ${{ matrix.image }}:${{ github.sha }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.variant }}-artifacts
+          path: |
+            *.tar
+            sbom-index.spdx.json
+
+  push:
+    name: Push ${{ matrix.variant }} image
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - variant: base
+            image: az871209/baseimage
+          - variant: dev
+            image: az871209/baseimage-dev
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: ${{ matrix.variant }}-artifacts
+
+      - name: Install Skopeo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo
+
+      - name: Login to Docker Hub
+        run: |
+          skopeo login docker.io \
+            --username ${{ secrets.DOCKER_USERNAME }} \
+            --password ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Push images with Skopeo
+        run: |
+          # Get the tar filename
+          TAR_FILE=$(ls *.tar)
+
+          skopeo copy docker-archive:${TAR_FILE} docker://${{ matrix.image }}:${{ github.sha }}
+          skopeo copy docker-archive:${TAR_FILE} docker://${{ matrix.image }}:latest
+
+  scan:
+    name: Scan ${{ matrix.variant }} image
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      matrix:
+        include:
+          - variant: base
+          - variant: dev
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: ${{ matrix.variant }}-artifacts
+
+      - name: Scan SBOM with Grype
+        id: scan
+        uses: anchore/scan-action@v7
+        with:
+          sbom: sbom-index.spdx.json
+
+      - name: Upload vulnerability scan to GitHub Security
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}

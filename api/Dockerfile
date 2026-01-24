@@ -2,15 +2,13 @@
 # ref: https://github.com/BretFisher/mastodon/blob/chainguard/Dockerfile 
 
 # wolfi-baselayout
-FROM az871209/wolfi-base:test AS base
+FROM az871209/baseimage:latest AS base
 
-FROM cgr.dev/chainguard/wolfi-base:latest AS prep-python
+FROM az871209/baseimage-dev:latest AS prep-python
 COPY --from=base / /base-chroot
 
 RUN apk add --no-script --no-commit-hooks --no-cache --root /base-chroot bash-binsh
 RUN apk add --no-cache --root /base-chroot \
-      ca-certificates \
-      tzdata \
       python-3.14
 
 ENV PYTHONUNBUFFERED=1 \
@@ -26,11 +24,9 @@ FROM base AS python-prod
 COPY --from=prep-python /base-chroot /
 USER nonroot
 
-FROM cgr.dev/chainguard/wolfi-base:latest AS base-uv
+FROM az871209/baseimage-dev:latest AS base-uv
 
 RUN apk add --no-cache \
-      ca-certificates \
-      py3.14-pip \
       python-3.14 \
       uv
 

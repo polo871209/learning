@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/chainguard-dev/apko/refs/heads/main/pkg/build/types/schema.json
 #
-# wolfi-base still contains sh ,apk, etc... use baselayout for only filesystem layout
+# debug base container
 
 contents:
   keyring:
@@ -8,8 +8,10 @@ contents:
   repositories:
     - https://packages.wolfi.dev/os
   packages:
+    - wolfi-base
     - ca-certificates-bundle
-    - wolfi-baselayout
+    - tzdata
+    - curl
 
 accounts:
   groups:
@@ -20,5 +22,4 @@ accounts:
       uid: 65532
 
 archs:
-  - x86_64
   - aarch64
