@@ -1,0 +1,4 @@
+_internal_defaults_do_not_set:
+  global:
+    # Currently supported are: [debug, distroless]
+    variant: "distroless"

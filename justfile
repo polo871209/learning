@@ -30,10 +30,11 @@ diff  package='apps/api' tag='dev':
 
 [working-directory: 'k8s/helm']
 helm-install:
-    @helm install istio-base istio/base --namespace istio-system --version 1.28.2
-    @helm install istiod istio/istiod --namespace istio-system --wait --version 1.28.2
-    @helm install kube-prometheus-stack oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack --namespace observability --wait --values kube-prometheus-stack/values.yaml
+    @helm install istio-base istio/base -n istio-system --version 1.28.3
+    @helm install istiod istio/istiod -n istio-system --wait --version 1.28.3 --values istiod/values.yaml
+    @helm install kube-prometheus-stack oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack -n observability --wait --values kube-prometheus-stack/values.yaml
 
-[working-directory: 'k8s/helm/kube-prometheus-stack']
+[working-directory: 'k8s/helm']
 helm-upgrade:
-	@helm upgrade kube-prometheus-stack oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack -n observability --values values.yaml
+	@helm upgrade kube-prometheus-stack oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack -n observability --values kube-prometheus-stack/values.yaml
+	@helm upgrade istiod oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack -n istio-system --values istiod/values.yaml
