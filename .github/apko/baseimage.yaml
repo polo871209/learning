@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/chainguard-dev/apko/refs/heads/main/pkg/build/types/schema.json
 #
-# wolfi-base still contains sh ,apk, etc... use baselayout for only filesystem layout
+# Base on: https://images.chainguard.dev/directory/image/static/sbom
 
 contents:
   keyring:
