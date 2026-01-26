@@ -22,10 +22,17 @@ _serviceMonitor: servicemonitor.#ServiceMonitor & {
 			interval: "30s"
 			scheme:   "http"
 			metricRelabelings: [
+				// Drop ALL metrics for /metrics endpoint
 				{
-					sourceLabels: ["__name__", "path"]
+					sourceLabels: ["http_target"]
 					action: "drop"
-					regex:  "api_request_duration_seconds.*;/health"
+					regex:  "/metrics"
+				},
+				// Drop ALL metrics for /health endpoint
+				{
+					sourceLabels: ["http_target"]
+					action: "drop"
+					regex:  "/health"
 				},
 				{
 					sourceLabels: ["__name__", "path"]

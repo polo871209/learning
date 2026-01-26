@@ -13,7 +13,7 @@ terraform {
 
 provider "grafana" {
   url  = "http://kube-prometheus-stack-grafana.observability.svc.cluster.local"
-  auth = "glsa_U6GpPnQivmPuEtLTjPV3MuiLg5zoOT1N_0c3006d7"
+  auth = "glsa_PQtotVlALknEV6HSuVjZPq49tfbTOhtb_744aa198"
 }
 
 provider "jsonnet" {
